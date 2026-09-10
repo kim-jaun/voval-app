@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>보컬 트레이닝 (프로토타입)</title>
+
+<!-- iOS 홈 화면 설치용 메타 태그 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="보컬트레이닝">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#111318">
+
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: #111318; color: #EDEDEF;
+    font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+  }
+  body {
+    display: flex; flex-direction: column;
+    padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom) 16px;
+  }
+  header {
+    padding: 16px 4px 8px;
+    font-size: 15px; font-weight: 600; text-align: center;
+    color: #A8A8AE;
+  }
+  main {
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+    max-width: 420px; width: 100%; margin: 0 auto;
+  }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* idle */
+  #screen-idle { text-align: center; }
+  #screen-idle p { color: #A8A8AE; font-size: 15px; margin-bottom: 28px; }
+  #record-btn {
+    width: 88px; height: 88px; border-radius: 50%;
+    border: none; background: #E5484D; color: white;
+    font-size: 30px; margin: 0 auto; display: flex;
+    align-items: center; justify-content: center; cursor: pointer;
+  }
+  #record-btn:active { transform: scale(0.95); }
+  #mic-error { color: #E5484D; font-size: 13px; margin-top: 16px; display: none; }
+
+  /* recording */
+  #screen-recording { text-align: center; }
+  .pulse-dot {
+    width: 88px; height: 88px; border-radius: 50%; background: #3A1518;
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  #screen-recording .label { color: #A8A8AE; font-size: 14px; margin-bottom: 4px; }
+  #timer { font-size: 26px; font-weight: 600; }
+
+  /* analyzing */
+  #screen-analyzing { text-align: center; }
+  .spinner {
+    width: 34px; height: 34px; margin: 0 auto 14px;
+    border: 3px solid #2A2D35; border-top-color: #A8A8AE; border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #screen-analyzing p { color: #A8A8AE; font-size: 14px; }
+
+  /* result */
+  #verdict-banner { border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+  #verdict-banner .v-label { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+  #verdict-banner .v-desc { font-size: 13px; line-height: 1.6; margin: 0; opacity: 0.92; }
+  .disclaimer { text-align: center; font-size: 11px; color: #6E6E76; margin: 0 0 10px; }
+  #cards { display: flex; flex-direction: column; gap: 10px; }
+  .card {
+    background: #1B1D24; border: 0.5px solid #2A2D35; border-radius: 14px;
+    padding: 14px 16px; position: relative;
+  }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .card-label { font-size: 13px; color: #A8A8AE; margin: 0 0 2px; }
+  .card-label .sub { color: #6E6E76; font-size: 11px; }
+  .card-value { font-size: 21px; font-weight: 600; margin: 0; }
+  .card-value .unit { font-size: 13px; color: #A8A8AE; margin-left: 2px; font-weight: 400; }
+  .info-btn {
+    width: 22px; height: 22px; min-width: 22px; border-radius: 50%;
+    border: 0.5px solid #3A3D45; background: #22242C; color: #A8A8AE;
+    font-size: 12px; font-style: italic; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0;
+  }
+  .card-tooltip {
+    display: none; margin-top: 10px; padding-top: 10px;
+    border-top: 0.5px solid #2A2D35; font-size: 12.5px; line-height: 1.6; color: #C4C4CA;
+  }
+  #retry-btn {
+    width: 100%; margin-top: 16px; padding: 14px; border-radius: 12px;
+    border: 0.5px solid #3A3D45; background: #1B1D24; color: #EDEDEF;
+    font-size: 15px; font-weight: 500; cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<header>보컬 트레이닝 · 프로토타입</header>
+
+<main>
+  <div id="screen-idle" class="screen active">
+    <p>버튼을 누르고 3초간 노래해보세요</p>
+    <button id="record-btn" aria-label="녹음 시작">🎤</button>
+    <p id="mic-error"></p>
+  </div>
+
+  <div id="screen-recording" class="screen">
+    <div class="pulse-dot">🎤</div>
+    <p class="label">녹음 중</p>
+    <p id="timer">0.0초</p>
+  </div>
+
+  <div id="screen-analyzing" class="screen">
+    <div class="spinner"></div>
+    <p>발성 지표 분석 중</p>
+  </div>
+
+  <div id="screen-result" class="screen">
+    <div id="verdict-banner"></div>
+    <p class="disclaimer">참고용 지표이며 정확한 진단이 아닙니다</p>
+    <div id="cards"></div>
+    <button id="retry-btn">다시 녹음하기</button>
+  </div>
+</main>
+
+<script>
+/* =========================================================================
+   1) 아주 작은 FFT 라이브러리 (radix-2, in-place, n은 2의 거듭제곱이어야 함)
+   ========================================================================= */
+function fft(re, im) {
+  const n = re.length;
+  if (n <= 1) return;
+  // 비트 반전 정렬
+  for (let i = 1, j = 0; i < n; i++) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) { [re[i], re[j]] = [re[j], re[i]]; [im[i], im[j]] = [im[j], im[i]]; }
+  }
+  for (let len = 2; len <= n; len <<= 1) {
+    const ang = -2 * Math.PI / len;
+    const wRe = Math.cos(ang), wIm = Math.sin(ang);
+    for (let i = 0; i < n; i += len) {
+      let curRe = 1, curIm = 0;
+      for (let j = 0; j < len / 2; j++) {
+        const uRe = re[i + j], uIm = im[i + j];
+        const vRe = re[i + j + len / 2] * curRe - im[i + j + len / 2] * curIm;
+        const vIm = re[i + j + len / 2] * curIm + im[i + j + len / 2] * curRe;
+        re[i + j] = uRe + vRe; im[i + j] = uIm + vIm;
+        re[i + j + len / 2] = uRe - vRe; im[i + j + len / 2] = uIm - vIm;
+        const nextRe = curRe * wRe - curIm * wIm;
+        const nextIm = curRe * wIm + curIm * wRe;
+        curRe = nextRe; curIm = nextIm;
+      }
+    }
+  }
+}
+function ifft(re, im) {
+  const n = re.length;
+  for (let i = 0; i < n; i++) im[i] = -im[i];
+  fft(re, im);
+  for (let i = 0; i < n; i++) { re[i] = re[i] / n; im[i] = -im[i] / n; }
+}
+function hannWindow(n) {
+  const w = new Float64Array(n);
+  for (let i = 0; i < n; i++) w[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (n - 1));
+  return w;
+}
+
+/* =========================================================================
+   2) 신호 처리 유틸
+   ========================================================================= */
+const N_FFT = 2048;
+const HOP = 512;
+const WINDOW = hannWindow(N_FFT);
+
+function frameSignal(samples) {
+  const frames = [];
+  for (let start = 0; start + N_FFT <= samples.length; start += HOP) {
+    frames.push(samples.subarray(start, start + N_FFT));
+  }
+  return frames;
+}
+
+// 프레임 하나의 파워 스펙트럼(길이 N_FFT/2+1) 계산
+function powerSpectrum(frame) {
+  const re = new Float64Array(N_FFT);
+  const im = new Float64Array(N_FFT);
+  for (let i = 0; i < N_FFT; i++) re[i] = frame[i] * WINDOW[i];
+  fft(re, im);
+  const half = N_FFT / 2 + 1;
+  const power = new Float64Array(half);
+  for (let i = 0; i < half; i++) power[i] = re[i] * re[i] + im[i] * im[i];
+  return power;
+}
+
+function binFreqs(sr) {
+  const half = N_FFT / 2 + 1;
+  const freqs = new Float64Array(half);
+  for (let i = 0; i < half; i++) freqs[i] = i * sr / N_FFT;
+  return freqs;
+}
+
+// 자기상관 기반 F0 추정 (프레임 단위)
+function estimatePitch(frame, sr, fmin = 65, fmax = 1046) {
+  const n = frame.length;
+  const lagMin = Math.floor(sr / fmax);
+  const lagMax = Math.min(Math.floor(sr / fmin), n - 1);
+
+  // 평균 제거
+  let mean = 0;
+  for (let i = 0; i < n; i++) mean += frame[i];
+  mean /= n;
+
+  let energy0 = 0;
+  for (let i = 0; i < n; i++) energy0 += (frame[i] - mean) ** 2;
+  if (energy0 < 1e-9) return { f0: null, voiced: false };
+
+  let bestLag = -1, bestCorr = -1;
+  for (let lag = lagMin; lag <= lagMax; lag++) {
+    let corr = 0;
+    for (let i = 0; i < n - lag; i++) {
+      corr += (frame[i] - mean) * (frame[i + lag] - mean);
+    }
+    corr /= energy0;
+    if (corr > bestCorr) { bestCorr = corr; bestLag = lag; }
+  }
+  const voiced = bestCorr > 0.35 && bestLag > 0;
+  return { f0: voiced ? sr / bestLag : null, voiced };
+}
+
+/* =========================================================================
+   3) 4가지 지표 계산 (Python vocal_indicators.py 로직과 동일하게 이식)
+   ========================================================================= */
+function analyzeSamples(samples, sr) {
+  const freqs = binFreqs(sr);
+  const frames = frameSignal(samples);
+
+  const spectra = frames.map(powerSpectrum);
+
+  // --- 평균 스펙트럼 (틸트 / 싱어스 포먼트 용) ---
+  const half = N_FFT / 2 + 1;
+  const meanSpectrum = new Float64Array(half);
+  for (const s of spectra) for (let i = 0; i < half; i++) meanSpectrum[i] += s[i] / spectra.length;
+
+  // 소리 두께감 (Spectral Tilt): 50Hz~8kHz, log-log 선형회귀 기울기
+  let sxx = 0, sx = 0, sy = 0, sxy = 0, cnt = 0;
+  for (let i = 0; i < half; i++) {
+    if (freqs[i] > 50 && freqs[i] < 8000) {
+      const lf = Math.log10(freqs[i]);
+      const le = 10 * Math.log10(meanSpectrum[i] + 1e-12);
+      sx += lf; sy += le; sxy += lf * le; sxx += lf * lf; cnt++;
+    }
+  }
+  const slope = (cnt * sxy - sx * sy) / (cnt * sxx - sx * sx);
+
+  // 소리 울림감 (Singer's Formant Ratio): 2.5~3.5kHz 대역 비중
+  let totalE = 0, bandE = 0;
+  for (let i = 0; i < half; i++) {
+    if (freqs[i] > 50 && freqs[i] < 8000) totalE += meanSpectrum[i];
+    if (freqs[i] >= 2500 && freqs[i] <= 3500) bandE += meanSpectrum[i];
+  }
+  const formantRatio = totalE > 0 ? bandE / totalE : NaN;
+
+  // 피치 & 성대 조임 정도 (H1-H2)
+  const h1h2Values = [];
+  let f0Sum = 0, f0Count = 0;
+  frames.forEach((frame, idx) => {
+    const { f0, voiced } = estimatePitch(frame, sr);
+    if (!voiced || !f0) return;
+    f0Sum += f0; f0Count++;
+    const h2freq = 2 * f0;
+    if (h2freq >= freqs[half - 1]) return;
+    let h1Idx = 0, h2Idx = 0, h1Diff = Infinity, h2Diff = Infinity;
+    for (let i = 0; i < half; i++) {
+      const d1 = Math.abs(freqs[i] - f0);
+      const d2 = Math.abs(freqs[i] - h2freq);
+      if (d1 < h1Diff) { h1Diff = d1; h1Idx = i; }
+      if (d2 < h2Diff) { h2Diff = d2; h2Idx = i; }
+    }
+    const h1db = 10 * Math.log10(spectra[idx][h1Idx] + 1e-12);
+    const h2db = 10 * Math.log10(spectra[idx][h2Idx] + 1e-12);
+    h1h2Values.push(h1db - h2db);
+  });
+  const h1h2 = h1h2Values.length ? h1h2Values.reduce((a, b) => a + b, 0) / h1h2Values.length : NaN;
+  const meanF0 = f0Count ? f0Sum / f0Count : NaN;
+
+  // 음색 선명도 (CPP)
+  const qMin = 1 / 800, qMax = 1 / 60;
+  const cppValues = [];
+  for (const s of spectra) {
+    const logFull = new Float64Array(N_FFT);
+    const imFull = new Float64Array(N_FFT);
+    for (let i = 0; i < half; i++) logFull[i] = Math.log(s[i] + 1e-12);
+    for (let i = 1; i < half - 1; i++) logFull[N_FFT - i] = logFull[i];
+    ifft(logFull, imFull); // 결과의 re 파트가 실켑스트럼
+    const cepstrum = logFull; // in-place 재사용
+
+    let peakVal = -Infinity, peakIdx = -1;
+    const qIdx = [];
+    for (let i = 0; i < half; i++) {
+      const q = i / sr;
+      if (q >= qMin && q <= qMax) {
+        qIdx.push(i);
+        if (cepstrum[i] > peakVal) { peakVal = cepstrum[i]; peakIdx = i; }
+      }
+    }
+    if (qIdx.length < 2 || peakIdx < 0) continue;
+
+    // 선형회귀 기준선
+    let sx2 = 0, sy2 = 0, sxy2 = 0, sxx2 = 0;
+    for (const i of qIdx) { const q = i / sr; sx2 += q; sy2 += cepstrum[i]; sxy2 += q * cepstrum[i]; sxx2 += q * q; }
+    const m = qIdx.length;
+    const bslope = (m * sxy2 - sx2 * sy2) / (m * sxx2 - sx2 * sx2);
+    const bintercept = (sy2 - bslope * sx2) / m;
+    const baseline = bslope * (peakIdx / sr) + bintercept;
+    cppValues.push(peakVal - baseline);
+  }
+  const cppRaw = cppValues.length ? cppValues.reduce((a, b) => a + b, 0) / cppValues.length : NaN;
+  const cpp = cppRaw * 20 / Math.log(10);
+
+  return {
+    mean_f0_hz: meanF0,
+    spectral_tilt: slope,
+    h1_h2_db: h1h2,
+    singers_formant_ratio: formantRatio,
+    cpp_db: cpp,
+  };
+}
+
+/* =========================================================================
+   4) 종합 판단 (흉성 / 두성 / 가성 / 생목소리)
+   ========================================================================= */
+function classifyVoiceType(result) {
+  const { h1_h2_db: h1h2, cpp_db: cpp, singers_formant_ratio } = result;
+  const formantRatio = singers_formant_ratio * 100;
+
+  if (isNaN(h1h2) || isNaN(cpp) || isNaN(formantRatio)) {
+    return {
+      label: "판단 불가", color: "gray",
+      desc: "유성음 구간이 충분히 감지되지 않았어요. 조금 더 길고 또렷하게 발성해서 다시 시도해보세요."
+    };
+  }
+
+  const tight = h1h2 < 3;
+  const supported = cpp >= 6 && formantRatio >= 3;
+
+  if (tight && supported) {
+    return {
+      label: "흉성에 가까운 소리", color: "coral",
+      desc: "성대를 비교적 꽉 조여서 내고 있고, 소리도 또렷하게 잘 울리는 편이에요. 힘 있고 안정적인 흉성 발성에 가까워요."
+    };
+  } else if (tight && !supported) {
+    return {
+      label: "생목소리에 가까운 소리", color: "amber",
+      desc: "성대는 꽉 조인 상태인데 소리 울림이나 선명도가 약한 편이에요. 지지 없이 목에 힘으로만 밀어붙이고 있을 가능성이 있어요. 무리하면 목에 부담이 갈 수 있으니 호흡 지지를 점검해보세요."
+    };
+  } else if (!tight && supported) {
+    return {
+      label: "두성에 가까운 소리", color: "teal",
+      desc: "성대를 상대적으로 느슨하게 쓰면서도 소리가 잘 울리고 또렷한 편이에요. 공명이 잘 받쳐주는 두성/믹스보이스에 가까워요."
+    };
+  } else {
+    return {
+      label: "가성에 가까운 소리", color: "blue",
+      desc: "성대를 느슨하게 쓰고 있고 소리 울림이나 선명도도 약한 편이에요. 바람이 섞인 가벼운 가성(팔세토)에 가까울 수 있어요."
+    };
+  }
+}
+
+function toCardData(result) {
+  const r = (v, d = 1) => (v === null || isNaN(v)) ? "—" : Number(v.toFixed(d));
+  return [
+    {
+      id: "tilt", label: "소리 두께감", sub: "Spectral Tilt",
+      value: r(result.spectral_tilt), unit: "",
+      desc: "이 값은 보통 마이너스(음수)로 나와요. 0에 가까울수록 두껍고 힘 있는 소리(흉성 경향)이고, 마이너스 쪽으로 클수록(예: -10보다 -30) 얇고 가벼운 소리(두성 경향)에 가까워요."
+    },
+    {
+      id: "h1h2", label: "성대 조임 정도", sub: "H1-H2",
+      value: r(result.h1_h2_db), unit: "dB",
+      desc: "성대를 얼마나 꽉 조여서 소리를 내는지를 보여줘요. 값이 작을수록 성대를 꽉 조여서 냄(흉성·벨팅 경향), 클수록 느슨하게 냄(두성·팔세토 경향)이에요."
+    },
+    {
+      id: "formant", label: "소리 울림감", sub: "Singer's formant",
+      value: r(result.singers_formant_ratio * 100), unit: "%",
+      desc: "2.5~3.5kHz 대역의 에너지 비중이에요. 값이 높을수록 소리가 반주를 뚫고 멀리 퍼지는 느낌을 줘요."
+    },
+    {
+      id: "cpp", label: "음색 선명도", sub: "CPP",
+      value: r(result.cpp_db), unit: "dB",
+      desc: "소리의 배음 구조가 얼마나 또렷한지를 나타내요. 값이 높을수록 깔끔하고 명료하게 들려요."
+    },
+  ];
+}
+
+/* =========================================================================
+   5) 녹음 + 화면 흐름 제어
+   ========================================================================= */
+const COLOR_MAP = {
+  coral: { bg: "#3A241C", text: "#FFB199" },
+  blue: { bg: "#1C2A3A", text: "#8FC2FF" },
+  teal: { bg: "#1C3A32", text: "#7FE0C4" },
+  amber: { bg: "#3A2E1C", text: "#F2C078" },
+  gray: { bg: "#26282F", text: "#C4C4CA" },
+};
+
+const screens = ["idle", "recording", "analyzing", "result"].reduce((acc, k) => {
+  acc[k] = document.getElementById("screen-" + k); return acc;
+}, {});
+function showScreen(name) {
+  Object.values(screens).forEach(s => s.classList.remove("active"));
+  screens[name].classList.add("active");
+}
+
+function renderVerdict(v) {
+  const c = COLOR_MAP[v.color] || COLOR_MAP.gray;
+  const el = document.getElementById("verdict-banner");
+  el.style.background = c.bg;
+  el.innerHTML = `<p class="v-label" style="color:${c.text}">${v.label}</p><p class="v-desc" style="color:${c.text}">${v.desc}</p>`;
+}
+
+function renderCards(items) {
+  const el = document.getElementById("cards");
+  el.innerHTML = "";
+  items.forEach(item => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="card-top">
+        <div>
+          <p class="card-label">${item.label} <span class="sub">(${item.sub})</span></p>
+          <p class="card-value">${item.value}<span class="unit">${item.unit}</span></p>
+        </div>
+        <button class="info-btn" data-id="${item.id}" aria-label="${item.label} 설명">i</button>
+      </div>
+      <div class="card-tooltip" data-id="${item.id}">${item.desc}</div>
+    `;
+    el.appendChild(card);
+  });
+}
+document.getElementById("cards").addEventListener("click", (e) => {
+  const btn = e.target.closest(".info-btn");
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const tip = document.querySelector(`.card-tooltip[data-id="${id}"]`);
+  const open = tip.style.display === "block";
+  document.querySelectorAll(".card-tooltip").forEach(t => t.style.display = "none");
+  tip.style.display = open ? "none" : "block";
+});
+
+let mediaRecorder, chunks = [], recordTimerHandle;
+
+async function startRecording() {
+  document.getElementById("mic-error").style.display = "none";
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (err) {
+    const el = document.getElementById("mic-error");
+    el.textContent = "마이크 권한이 필요해요. 설정 > Safari > 마이크에서 허용해주세요.";
+    el.style.display = "block";
+    return;
+  }
+
+  chunks = [];
+  const mimeType = MediaRecorder.isTypeSupported("audio/mp4") ? "audio/mp4" : "";
+  mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+  mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+  mediaRecorder.onstop = async () => {
+    stream.getTracks().forEach(t => t.stop());
+    await handleRecordingComplete();
+  };
+  mediaRecorder.start();
+  showScreen("recording");
+
+  let elapsed = 0;
+  document.getElementById("timer").textContent = "0.0초";
+  recordTimerHandle = setInterval(() => {
+    elapsed += 0.1;
+    document.getElementById("timer").textContent = elapsed.toFixed(1) + "초";
+    if (elapsed >= 3.0) {
+      clearInterval(recordTimerHandle);
+      mediaRecorder.stop();
+    }
+  }, 100);
+}
+
+async function handleRecordingComplete() {
+  showScreen("analyzing");
+  try {
+    const blob = new Blob(chunks, { type: chunks[0]?.type || "audio/mp4" });
+    const arrayBuffer = await blob.arrayBuffer();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+    const samples = audioBuffer.getChannelData(0);
+    const sr = audioBuffer.sampleRate;
+
+    // 살짝의 딜레이로 "분석 중" 화면이 눈에 보이게
+    await new Promise(res => setTimeout(res, 400));
+
+    const result = analyzeSamples(samples, sr);
+    const verdict = classifyVoiceType(result);
+    renderVerdict(verdict);
+    renderCards(toCardData(result));
+    showScreen("result");
+  } catch (err) {
+    console.error(err);
+    showScreen("idle");
+    const el = document.getElementById("mic-error");
+    el.textContent = "분석 중 오류가 발생했어요. 다시 시도해주세요.";
+    el.style.display = "block";
+  }
+}
+
+document.getElementById("record-btn").addEventListener("click", startRecording);
+document.getElementById("retry-btn").addEventListener("click", () => showScreen("idle"));
+</script>
+</body>
+</html>
