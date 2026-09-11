@@ -59,46 +59,59 @@
   }
   #calibrate-btn:active { transform: scale(0.95); }
 
-  /* idle */
-  #screen-idle { text-align: center; }
-  #screen-idle p { color: #A8A8AE; font-size: 15px; margin-bottom: 28px; }
-  #record-btn {
-    width: 88px; height: 88px; border-radius: 50%;
-    border: none; background: #E5484D; color: white;
-    font-size: 30px; margin: 0 auto; display: flex;
-    align-items: center; justify-content: center; cursor: pointer;
+  /* live (실시간 분석 메인 화면) */
+  #screen-live { text-align: center; }
+  .live-toolbar { display: flex; flex-direction: column; align-items: center; margin-bottom: 14px; }
+  #live-toggle-btn {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: none; background: #2A6F4A; color: white;
+    font-size: 26px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; margin-bottom: 10px;
   }
-  #record-btn:active { transform: scale(0.95); }
+  #live-toggle-btn.on { background: #E5484D; }
+  #live-toggle-btn:active { transform: scale(0.95); }
+  #live-status { color: #A8A8AE; font-size: 13px; margin: 0; }
+  #live-level-track {
+    height: 6px; border-radius: 3px; background: #2A2D35; overflow: hidden; margin-bottom: 14px;
+  }
+  #live-level-fill { height: 100%; width: 0%; background: #3A6FE0; transition: width 0.08s linear; }
+  #live-f0-row { margin-bottom: 14px; }
+  #live-f0-value { font-size: 34px; font-weight: 700; }
+  .live-f0-unit { font-size: 14px; color: #A8A8AE; margin-left: 4px; }
+  .empty-state {
+    background: #1B1D24; border: 0.5px dashed #3A3D45; border-radius: 14px;
+    padding: 18px 16px; margin-bottom: 12px; color: #6E6E76; font-size: 13px;
+  }
 
-  /* recording */
-  #screen-recording { text-align: center; }
+  /* calibration recording/analyzing */
+  #screen-calib-recording { text-align: center; }
   .pulse-dot {
     width: 88px; height: 88px; border-radius: 50%; background: #3A1518;
     display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;
     animation: pulse 1s ease-in-out infinite;
   }
   @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
-  #screen-recording .label { color: #A8A8AE; font-size: 14px; margin-bottom: 4px; }
-  #timer { font-size: 26px; font-weight: 600; }
+  #screen-calib-recording .label { color: #A8A8AE; font-size: 14px; margin-bottom: 4px; }
+  #calib-timer { font-size: 26px; font-weight: 600; }
 
-  /* analyzing */
-  #screen-analyzing { text-align: center; }
+  #screen-calib-analyzing { text-align: center; }
   .spinner {
     width: 34px; height: 34px; margin: 0 auto 14px;
     border: 3px solid #2A2D35; border-top-color: #A8A8AE; border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  #screen-analyzing p { color: #A8A8AE; font-size: 14px; }
+  #screen-calib-analyzing p { color: #A8A8AE; font-size: 14px; }
 
   /* result */
-  #verdict-banner { border-radius: 14px; padding: 16px; margin-bottom: 12px; }
+  #verdict-banner { border-radius: 14px; padding: 16px; margin-bottom: 12px; text-align: left; }
+  #verdict-banner.empty-state { text-align: center; }
   #verdict-banner .v-label { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
   #verdict-banner .v-desc { font-size: 13px; line-height: 1.6; margin: 0; opacity: 0.92; }
 
   #resonance-section {
     background: #1B1D24; border: 0.5px solid #2A2D35; border-radius: 14px;
-    padding: 14px 16px; margin-bottom: 12px;
+    padding: 14px 16px; margin-bottom: 12px; text-align: left;
   }
   .resonance-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   .resonance-title { font-size: 13px; color: #A8A8AE; margin: 0; }
@@ -106,11 +119,11 @@
   .resonance-row:last-child { margin-bottom: 0; }
   .resonance-label { font-size: 12px; color: #C4C4CA; width: 92px; flex-shrink: 0; }
   .resonance-track { flex: 1; height: 8px; border-radius: 4px; background: #2A2D35; overflow: hidden; }
-  .resonance-fill { height: 100%; border-radius: 4px; background: #3A6FE0; }
+  .resonance-fill { height: 100%; border-radius: 4px; background: #3A6FE0; transition: width 0.15s linear; }
   .resonance-fill.dominant { background: #E5484D; }
   .resonance-pct { font-size: 12px; color: #A8A8AE; width: 38px; text-align: right; flex-shrink: 0; }
   .disclaimer { text-align: center; font-size: 11px; color: #6E6E76; margin: 0 0 10px; }
-  #cards { display: flex; flex-direction: column; gap: 10px; }
+  #cards { display: flex; flex-direction: column; gap: 10px; text-align: left; }
   .card {
     background: #1B1D24; border: 0.5px solid #2A2D35; border-radius: 14px;
     padding: 14px 16px; position: relative;
@@ -130,11 +143,6 @@
     display: none; margin-top: 10px; padding-top: 10px;
     border-top: 0.5px solid #2A2D35; font-size: 12.5px; line-height: 1.6; color: #C4C4CA;
   }
-  #retry-btn {
-    width: 100%; margin-top: 16px; padding: 14px; border-radius: 12px;
-    border: 0.5px solid #3A3D45; background: #1B1D24; color: #EDEDEF;
-    font-size: 15px; font-weight: 500; cursor: pointer;
-  }
 </style>
 </head>
 <body>
@@ -150,26 +158,31 @@
     <p id="calib-error" class="err-text"></p>
   </div>
 
-  <div id="screen-idle" class="screen">
-    <p>버튼을 누르고 3초간 노래해보세요</p>
-    <button id="record-btn" aria-label="녹음 시작">🎤</button>
-    <p id="mic-error" class="err-text"></p>
-    <button id="recalibrate-link" class="link-btn">평소 목소리 기준 다시 설정하기</button>
-  </div>
-
-  <div id="screen-recording" class="screen">
+  <div id="screen-calib-recording" class="screen">
     <div class="pulse-dot">🎤</div>
-    <p class="label" id="recording-label">녹음 중</p>
-    <p id="timer">0.0초</p>
+    <p class="label" id="calib-recording-label">평소 목소리로 읽는 중</p>
+    <p id="calib-timer">0.0초</p>
   </div>
 
-  <div id="screen-analyzing" class="screen">
+  <div id="screen-calib-analyzing" class="screen">
     <div class="spinner"></div>
-    <p id="analyzing-label">발성 지표 분석 중</p>
+    <p>기준값 설정 중</p>
   </div>
 
-  <div id="screen-result" class="screen">
-    <div id="verdict-banner"></div>
+  <div id="screen-live" class="screen">
+    <div class="live-toolbar">
+      <button id="live-toggle-btn" aria-label="실시간 분석 시작/정지">🎤</button>
+      <p id="live-status">탭해서 실시간 분석 시작</p>
+    </div>
+    <div id="live-level-track"><div id="live-level-fill"></div></div>
+    <p id="live-error" class="err-text"></p>
+
+    <div id="live-f0-row">
+      <span id="live-f0-value">—</span><span class="live-f0-unit">Hz</span>
+    </div>
+
+    <div id="verdict-banner" class="empty-state">노래를 시작하면 실시간으로 판단이 표시돼요</div>
+
     <div id="resonance-section">
       <div class="resonance-header">
         <p class="resonance-title">주로 울리는 위치 (추정)</p>
@@ -184,9 +197,9 @@
         더 두드러진다는 뜻이에요. 체감하는 울림 위치와 다를 수 있어요.
       </div>
     </div>
-    <p class="disclaimer">참고용 지표이며 정확한 진단이 아닙니다</p>
+    <p class="disclaimer">참고용 지표이며 정확한 진단이 아닙니다. 약 1초 단위 스냅샷이라 순간적으로 값이 흔들릴 수 있어요.</p>
     <div id="cards"></div>
-    <button id="retry-btn">다시 녹음하기</button>
+    <button id="recalibrate-link" class="link-btn">평소 목소리 기준 다시 설정하기</button>
   </div>
 </main>
 
@@ -515,7 +528,7 @@ const COLOR_MAP = {
   gray: { bg: "#26282F", text: "#C4C4CA" },
 };
 
-const screens = ["calibrate-intro", "idle", "recording", "analyzing", "result"].reduce((acc, k) => {
+const screens = ["calibrate-intro", "calib-recording", "calib-analyzing", "live"].reduce((acc, k) => {
   acc[k] = document.getElementById("screen-" + k); return acc;
 }, {});
 function showScreen(name) {
@@ -526,8 +539,16 @@ function showScreen(name) {
 function renderVerdict(v) {
   const c = COLOR_MAP[v.color] || COLOR_MAP.gray;
   const el = document.getElementById("verdict-banner");
+  el.classList.remove("empty-state");
   el.style.background = c.bg;
   el.innerHTML = `<p class="v-label" style="color:${c.text}">${v.label}</p><p class="v-desc" style="color:${c.text}">${v.desc}</p>`;
+}
+
+function resetVerdict() {
+  const el = document.getElementById("verdict-banner");
+  el.classList.add("empty-state");
+  el.style.background = "";
+  el.textContent = "노래를 시작하면 실시간으로 판단이 표시돼요";
 }
 
 function renderResonanceBands(bands) {
@@ -606,9 +627,10 @@ function saveBaseline(result) {
   return stats;
 }
 
-let mediaRecorder, chunks = [], recordTimerHandle;
+let mediaRecorder, chunks = [], calibTimerHandle;
 
-async function recordAudio(durationSec, onLabelUpdate) {
+// ---- 캘리브레이션용: 3초 1회성 녹음 (MediaRecorder 사용) ----
+async function recordAudioOnce(durationSec, onTick) {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   chunks = [];
   const mimeType = MediaRecorder.isTypeSupported("audio/mp4") ? "audio/mp4" : "";
@@ -619,15 +641,14 @@ async function recordAudio(durationSec, onLabelUpdate) {
     mediaRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); resolve(); };
   });
   mediaRecorder.start();
-  showScreen("recording");
 
   let elapsed = 0;
-  onLabelUpdate(elapsed);
-  recordTimerHandle = setInterval(() => {
+  onTick(elapsed);
+  calibTimerHandle = setInterval(() => {
     elapsed += 0.1;
-    onLabelUpdate(elapsed);
+    onTick(elapsed);
     if (elapsed >= durationSec) {
-      clearInterval(recordTimerHandle);
+      clearInterval(calibTimerHandle);
       mediaRecorder.stop();
     }
   }, 100);
@@ -638,22 +659,22 @@ async function recordAudio(durationSec, onLabelUpdate) {
   const arrayBuffer = await blob.arrayBuffer();
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+  await audioCtx.close();
   return { samples: audioBuffer.getChannelData(0), sr: audioBuffer.sampleRate };
 }
 
 async function startCalibration() {
   document.getElementById("calib-error").style.display = "none";
-  document.getElementById("recording-label").textContent = "평소 목소리로 읽는 중";
   try {
-    const { samples, sr } = await recordAudio(3.0, (t) => {
-      document.getElementById("timer").textContent = t.toFixed(1) + "초";
+    showScreen("calib-recording");
+    const { samples, sr } = await recordAudioOnce(3.0, (t) => {
+      document.getElementById("calib-timer").textContent = t.toFixed(1) + "초";
     });
-    showScreen("analyzing");
-    document.getElementById("analyzing-label").textContent = "기준값 설정 중";
+    showScreen("calib-analyzing");
     await new Promise(res => setTimeout(res, 300));
     const result = analyzeSamples(samples, sr);
     saveBaseline(result);
-    showScreen("idle");
+    showScreen("live");
   } catch (err) {
     console.error(err);
     showScreen("calibrate-intro");
@@ -663,40 +684,144 @@ async function startCalibration() {
   }
 }
 
-async function startRecording() {
-  document.getElementById("mic-error").style.display = "none";
-  document.getElementById("recording-label").textContent = "녹음 중";
-  try {
-    const { samples, sr } = await recordAudio(3.0, (t) => {
-      document.getElementById("timer").textContent = t.toFixed(1) + "초";
-    });
-    showScreen("analyzing");
-    document.getElementById("analyzing-label").textContent = "발성 지표 분석 중";
-    await new Promise(res => setTimeout(res, 400));
+// =========================================================================
+// 실시간(라이브) 분석: 기타 튜너처럼 마이크를 계속 열어두고 짧은 구간씩 분석
+// =========================================================================
+const LIVE_BUFFER_SEC = 1.5;    // 순환 버퍼 길이
+const LIVE_WINDOW_SEC = 1.0;    // 매번 분석에 쓰는 최근 구간 길이
+const LIVE_ANALYSIS_MS = 800;   // 분석 주기
+const LIVE_PROCESSOR_BUFSIZE = 4096;
 
-    const result = analyzeSamples(samples, sr);
+const live = {
+  active: false,
+  audioCtx: null,
+  stream: null,
+  sourceNode: null,
+  processorNode: null,
+  silentGain: null,
+  sr: 0,
+  circularBuf: null,
+  writeIdx: 0,
+  totalWritten: 0,
+  currentLevel: 0,
+  analysisTimer: null,
+  levelTimer: null,
+};
+
+function liveWriteChunk(chunk) {
+  const buf = live.circularBuf;
+  for (let i = 0; i < chunk.length; i++) {
+    buf[live.writeIdx] = chunk[i];
+    live.writeIdx = (live.writeIdx + 1) % buf.length;
+  }
+  live.totalWritten += chunk.length;
+
+  // 레벨미터용 RMS 계산
+  let sumSq = 0;
+  for (let i = 0; i < chunk.length; i++) sumSq += chunk[i] * chunk[i];
+  live.currentLevel = Math.sqrt(sumSq / chunk.length);
+}
+
+function liveExtractWindow(windowSec) {
+  const n = Math.min(Math.floor(windowSec * live.sr), live.circularBuf.length);
+  const out = new Float32Array(n);
+  let idx = (live.writeIdx - n + live.circularBuf.length * 4) % live.circularBuf.length;
+  for (let i = 0; i < n; i++) {
+    out[i] = live.circularBuf[idx];
+    idx = (idx + 1) % live.circularBuf.length;
+  }
+  return out;
+}
+
+async function startLiveListening() {
+  document.getElementById("live-error").style.display = "none";
+  try {
+    live.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    live.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    live.sr = live.audioCtx.sampleRate;
+    live.circularBuf = new Float32Array(Math.ceil(LIVE_BUFFER_SEC * live.sr));
+    live.writeIdx = 0;
+    live.totalWritten = 0;
+
+    live.sourceNode = live.audioCtx.createMediaStreamSource(live.stream);
+    live.processorNode = live.audioCtx.createScriptProcessor(LIVE_PROCESSOR_BUFSIZE, 1, 1);
+    live.silentGain = live.audioCtx.createGain();
+    live.silentGain.gain.value = 0; // 마이크 소리가 스피커로 되먹임되지 않도록 무음 처리
+
+    live.processorNode.onaudioprocess = (e) => {
+      liveWriteChunk(e.inputBuffer.getChannelData(0));
+    };
+    live.sourceNode.connect(live.processorNode);
+    live.processorNode.connect(live.silentGain);
+    live.silentGain.connect(live.audioCtx.destination);
+
+    live.active = true;
+    document.getElementById("live-toggle-btn").classList.add("on");
+    document.getElementById("live-status").textContent = "듣는 중… 노래해보세요";
+
+    live.levelTimer = setInterval(() => {
+      const pct = Math.min(100, live.currentLevel * 400); // 대략적인 스케일링
+      document.getElementById("live-level-fill").style.width = pct.toFixed(0) + "%";
+    }, 100);
+
     const baseline = loadBaseline();
-    const verdict = classifyVoiceType(result, baseline);
-    renderVerdict(verdict);
-    renderResonanceBands(result.resonance_bands);
-    renderCards(toCardData(result));
-    showScreen("result");
+    live.analysisTimer = setInterval(() => {
+      const minSamples = LIVE_WINDOW_SEC * live.sr;
+      if (live.totalWritten < minSamples) return; // 아직 1초 분량이 안 모임
+      const windowSamples = liveExtractWindow(LIVE_WINDOW_SEC);
+      const result = analyzeSamples(windowSamples, live.sr);
+
+      document.getElementById("live-f0-value").textContent =
+        isNaN(result.mean_f0_hz) ? "—" : Math.round(result.mean_f0_hz);
+
+      const verdict = classifyVoiceType(result, baseline);
+      renderVerdict(verdict);
+      renderResonanceBands(result.resonance_bands);
+      renderCards(toCardData(result));
+    }, LIVE_ANALYSIS_MS);
+
   } catch (err) {
     console.error(err);
-    showScreen("idle");
-    const el = document.getElementById("mic-error");
-    el.textContent = "마이크 권한이 필요하거나 분석 중 오류가 발생했어요. 다시 시도해주세요.";
+    const el = document.getElementById("live-error");
+    el.textContent = "마이크 권한이 필요해요. 설정 > Safari > 마이크에서 허용해주세요.";
     el.style.display = "block";
+    stopLiveListening();
   }
 }
 
-document.getElementById("record-btn").addEventListener("click", startRecording);
-document.getElementById("retry-btn").addEventListener("click", () => showScreen("idle"));
-document.getElementById("calibrate-btn").addEventListener("click", startCalibration);
-document.getElementById("recalibrate-link").addEventListener("click", () => showScreen("calibrate-intro"));
+function stopLiveListening() {
+  live.active = false;
+  if (live.analysisTimer) clearInterval(live.analysisTimer);
+  if (live.levelTimer) clearInterval(live.levelTimer);
+  live.analysisTimer = null;
+  live.levelTimer = null;
 
-// 시작 화면: 기준값이 이미 있으면 바로 idle, 없으면 기준값 설정부터
-showScreen(loadBaseline() ? "idle" : "calibrate-intro");
+  if (live.processorNode) { live.processorNode.disconnect(); live.processorNode.onaudioprocess = null; }
+  if (live.sourceNode) live.sourceNode.disconnect();
+  if (live.silentGain) live.silentGain.disconnect();
+  if (live.stream) live.stream.getTracks().forEach(t => t.stop());
+  if (live.audioCtx) live.audioCtx.close();
+
+  document.getElementById("live-toggle-btn").classList.remove("on");
+  document.getElementById("live-status").textContent = "탭해서 실시간 분석 시작";
+  document.getElementById("live-level-fill").style.width = "0%";
+  document.getElementById("live-f0-value").textContent = "—";
+  resetVerdict();
+  document.getElementById("resonance-bars").innerHTML = "";
+  document.getElementById("cards").innerHTML = "";
+}
+
+document.getElementById("live-toggle-btn").addEventListener("click", () => {
+  if (live.active) stopLiveListening(); else startLiveListening();
+});
+document.getElementById("calibrate-btn").addEventListener("click", startCalibration);
+document.getElementById("recalibrate-link").addEventListener("click", () => {
+  if (live.active) stopLiveListening();
+  showScreen("calibrate-intro");
+});
+
+// 시작 화면: 기준값이 이미 있으면 바로 live 화면, 없으면 기준값 설정부터
+showScreen(loadBaseline() ? "live" : "calibrate-intro");
 </script>
 </body>
 </html>
