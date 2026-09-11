@@ -95,6 +95,20 @@
   #verdict-banner { border-radius: 14px; padding: 16px; margin-bottom: 12px; }
   #verdict-banner .v-label { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
   #verdict-banner .v-desc { font-size: 13px; line-height: 1.6; margin: 0; opacity: 0.92; }
+
+  #resonance-section {
+    background: #1B1D24; border: 0.5px solid #2A2D35; border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 12px;
+  }
+  .resonance-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .resonance-title { font-size: 13px; color: #A8A8AE; margin: 0; }
+  .resonance-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .resonance-row:last-child { margin-bottom: 0; }
+  .resonance-label { font-size: 12px; color: #C4C4CA; width: 92px; flex-shrink: 0; }
+  .resonance-track { flex: 1; height: 8px; border-radius: 4px; background: #2A2D35; overflow: hidden; }
+  .resonance-fill { height: 100%; border-radius: 4px; background: #3A6FE0; }
+  .resonance-fill.dominant { background: #E5484D; }
+  .resonance-pct { font-size: 12px; color: #A8A8AE; width: 38px; text-align: right; flex-shrink: 0; }
   .disclaimer { text-align: center; font-size: 11px; color: #6E6E76; margin: 0 0 10px; }
   #cards { display: flex; flex-direction: column; gap: 10px; }
   .card {
@@ -156,6 +170,20 @@
 
   <div id="screen-result" class="screen">
     <div id="verdict-banner"></div>
+    <div id="resonance-section">
+      <div class="resonance-header">
+        <p class="resonance-title">주로 울리는 위치 (추정)</p>
+        <button class="info-btn" id="resonance-info-btn" aria-label="울림 위치 추정 설명">i</button>
+      </div>
+      <div id="resonance-bars"></div>
+      <div class="card-tooltip" id="resonance-tooltip">
+        실제 신체 위치를 측정한 게 아니라, 전체적인 소리 감쇠 추세보다 어느 대역이
+        유독 튀어나와(에너지가 더 많이) 있는지를 계산해서, 보컬 교육에서 흔히 쓰는
+        표현(가슴/목·구강/마스크/머리)에 빗대어 추정한 값이에요. 오른쪽 숫자는 dB
+        단위 잔차이며, 값이 클수록(막대가 붉게 표시된 대역) 그 대역이 상대적으로
+        더 두드러진다는 뜻이에요. 체감하는 울림 위치와 다를 수 있어요.
+      </div>
+    </div>
     <p class="disclaimer">참고용 지표이며 정확한 진단이 아닙니다</p>
     <div id="cards"></div>
     <button id="retry-btn">다시 녹음하기</button>
@@ -301,6 +329,38 @@ function analyzeSamples(samples, sr) {
   }
   const formantRatio = totalE > 0 ? bandE / totalE : NaN;
 
+  // 울림 위치 추정: 80~8000Hz를 4개 대역으로 나눠, 전체적인 감쇠 추세(스펙트럴 틸트)
+  // 대비 "유독 튀어나온" 정도(잔차, residual)를 계산.
+  // 단순히 각 대역의 에너지 총량만 비교하면 음높이(F0)가 낮을 때 저음 대역이
+  // 무조건 높게 나오는 왜곡이 생기기 때문에, 회귀선 대비 잔차를 사용함.
+  // ※ 실제 신체 위치를 측정하는 게 아니라, 보컬 교육에서 흔히 쓰는 표현에
+  //   빗댄 "추정치"임
+  const RESONANCE_BANDS = [
+    { id: "chest", label: "가슴 울림", lo: 80, hi: 500 },
+    { id: "throat", label: "목·구강 울림", lo: 500, hi: 2000 },
+    { id: "mask", label: "마스크(얼굴) 울림", lo: 2000, hi: 4000 },
+    { id: "head", label: "머리 울림", lo: 4000, hi: 8000 },
+  ];
+  const bandResidualSum = RESONANCE_BANDS.map(() => 0);
+  const bandResidualCount = RESONANCE_BANDS.map(() => 0);
+  for (let i = 0; i < half; i++) {
+    if (freqs[i] < 80 || freqs[i] > 8000) continue;
+    const predictedDb = slope * Math.log10(freqs[i]) + (sy - slope * sx) / cnt;
+    const actualDb = 10 * Math.log10(meanSpectrum[i] + 1e-12);
+    const residual = actualDb - predictedDb;
+    RESONANCE_BANDS.forEach((b, bi) => {
+      if (freqs[i] >= b.lo && freqs[i] < b.hi) {
+        bandResidualSum[bi] += residual;
+        bandResidualCount[bi] += 1;
+      }
+    });
+  }
+  const resonanceBands = RESONANCE_BANDS.map((b, bi) => ({
+    id: b.id,
+    label: b.label,
+    residual_db: bandResidualCount[bi] > 0 ? bandResidualSum[bi] / bandResidualCount[bi] : NaN,
+  }));
+
   // 피치 & 성대 조임 정도 (H1-H2)
   const h1h2Values = [];
   let f0Sum = 0, f0Count = 0;
@@ -364,6 +424,7 @@ function analyzeSamples(samples, sr) {
     h1_h2_db: h1h2,
     singers_formant_ratio: formantRatio,
     cpp_db: cpp,
+    resonance_bands: resonanceBands,
   };
 }
 
@@ -468,6 +529,30 @@ function renderVerdict(v) {
   el.style.background = c.bg;
   el.innerHTML = `<p class="v-label" style="color:${c.text}">${v.label}</p><p class="v-desc" style="color:${c.text}">${v.desc}</p>`;
 }
+
+function renderResonanceBands(bands) {
+  const el = document.getElementById("resonance-bars");
+  el.innerHTML = "";
+  const RANGE = 15; // ±15dB 범위로 막대 길이 정규화 (표시용)
+  const maxResidual = Math.max(...bands.map(b => isNaN(b.residual_db) ? -Infinity : b.residual_db));
+  bands.forEach(b => {
+    const r = isNaN(b.residual_db) ? 0 : b.residual_db;
+    const pct = Math.max(0, Math.min(100, ((r + RANGE) / (RANGE * 2)) * 100));
+    const isDominant = !isNaN(b.residual_db) && b.residual_db === maxResidual;
+    const row = document.createElement("div");
+    row.className = "resonance-row";
+    row.innerHTML = `
+      <span class="resonance-label">${b.label}</span>
+      <span class="resonance-track"><span class="resonance-fill${isDominant ? " dominant" : ""}" style="width:${pct.toFixed(1)}%"></span></span>
+      <span class="resonance-pct">${r >= 0 ? "+" : ""}${r.toFixed(1)}</span>
+    `;
+    el.appendChild(row);
+  });
+}
+document.getElementById("resonance-info-btn").addEventListener("click", () => {
+  const tip = document.getElementById("resonance-tooltip");
+  tip.style.display = tip.style.display === "block" ? "none" : "block";
+});
 
 function renderCards(items) {
   const el = document.getElementById("cards");
@@ -593,6 +678,7 @@ async function startRecording() {
     const baseline = loadBaseline();
     const verdict = classifyVoiceType(result, baseline);
     renderVerdict(verdict);
+    renderResonanceBands(result.resonance_bands);
     renderCards(toCardData(result));
     showScreen("result");
   } catch (err) {
