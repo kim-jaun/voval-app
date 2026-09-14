@@ -78,6 +78,28 @@
   #live-f0-row { margin-bottom: 14px; }
   #live-f0-value { font-size: 34px; font-weight: 700; }
   .live-f0-unit { font-size: 14px; color: #A8A8AE; margin-left: 4px; }
+
+  #state-icons { display: flex; gap: 8px; margin-bottom: 14px; }
+  .state-icon {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 10px 4px; border-radius: 12px; background: #1B1D24;
+    border: 0.5px solid #2A2D35; font-size: 11px; color: #6E6E76;
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  .state-dot {
+    width: 14px; height: 14px; border-radius: 50%; background: #2A2D35;
+    transition: background 0.15s ease, box-shadow 0.15s ease;
+  }
+  .state-icon.lit { color: #EDEDEF; border-color: transparent; }
+  .state-icon.lit .state-dot { box-shadow: 0 0 8px 1px currentColor; }
+  .state-icon[data-id="falsetto"].lit { background: #1C2A3A; }
+  .state-icon[data-id="falsetto"].lit .state-dot { background: #8FC2FF; color: #8FC2FF; }
+  .state-icon[data-id="chest"].lit { background: #3A241C; }
+  .state-icon[data-id="chest"].lit .state-dot { background: #FFB199; color: #FFB199; }
+  .state-icon[data-id="head"].lit { background: #1C3A32; }
+  .state-icon[data-id="head"].lit .state-dot { background: #7FE0C4; color: #7FE0C4; }
+  .state-icon[data-id="pressed"].lit { background: #3A2E1C; }
+  .state-icon[data-id="pressed"].lit .state-dot { background: #F2C078; color: #F2C078; }
   .empty-state {
     background: #1B1D24; border: 0.5px dashed #3A3D45; border-radius: 14px;
     padding: 18px 16px; margin-bottom: 12px; color: #6E6E76; font-size: 13px;
@@ -153,7 +175,7 @@
   <div id="screen-calibrate-intro" class="screen">
     <p class="calib-title">먼저 평소 목소리를 설정할게요</p>
     <p>노래 말고, <strong>평소에 말하는 톤</strong>으로 아래 문장을 편하게 읽어주세요.<br>이 기준으로 노래할 때 얼마나 달라지는지를 비교해요.</p>
-    <p class="calib-sentence">"오늘 날씨가 참 좋네요"</p>
+    <p class="calib-sentence">"안녕하세요, 오늘 하루도 즐겁게 보내세요"</p>
     <button id="calibrate-btn" aria-label="기본값 녹음 시작">🎤</button>
     <p id="calib-error" class="err-text"></p>
   </div>
@@ -179,6 +201,13 @@
 
     <div id="live-f0-row">
       <span id="live-f0-value">—</span><span class="live-f0-unit">Hz</span>
+    </div>
+
+    <div id="state-icons">
+      <div class="state-icon" data-id="falsetto"><span class="state-dot"></span>가성</div>
+      <div class="state-icon" data-id="chest"><span class="state-dot"></span>흉성</div>
+      <div class="state-icon" data-id="head"><span class="state-dot"></span>두성</div>
+      <div class="state-icon" data-id="pressed"><span class="state-dot"></span>목에 힘줌</div>
     </div>
 
     <div id="verdict-banner" class="empty-state">노래를 시작하면 실시간으로 판단이 표시돼요</div>
@@ -306,7 +335,11 @@ function estimatePitch(frame, sr, fmin = 65, fmax = 1046) {
     if (corr > bestCorr) { bestCorr = corr; bestLag = lag; }
   }
   const voiced = bestCorr > 0.35 && bestLag > 0;
-  return { f0: voiced ? sr / bestLag : null, voiced };
+  // HNR(배음 대 잡음 비율): 자기상관 최대값(r)에서 바로 유도 가능
+  // r=1이면 완벽히 주기적(잡음 없음), r이 낮을수록 잡음(숨소리 등) 비중이 큼
+  const rClamped = Math.min(0.999999, Math.max(0, bestCorr));
+  const hnrDb = voiced ? 10 * Math.log10(rClamped / (1 - rClamped)) : null;
+  return { f0: voiced ? sr / bestLag : null, voiced, hnrDb };
 }
 
 /* =========================================================================
@@ -374,13 +407,15 @@ function analyzeSamples(samples, sr) {
     residual_db: bandResidualCount[bi] > 0 ? bandResidualSum[bi] / bandResidualCount[bi] : NaN,
   }));
 
-  // 피치 & 성대 조임 정도 (H1-H2)
+  // 피치 & 성대 조임 정도 (H1-H2) & HNR
   const h1h2Values = [];
+  const hnrValues = [];
   let f0Sum = 0, f0Count = 0;
   frames.forEach((frame, idx) => {
-    const { f0, voiced } = estimatePitch(frame, sr);
+    const { f0, voiced, hnrDb } = estimatePitch(frame, sr);
     if (!voiced || !f0) return;
     f0Sum += f0; f0Count++;
+    if (hnrDb !== null && isFinite(hnrDb)) hnrValues.push(hnrDb);
     const h2freq = 2 * f0;
     if (h2freq >= freqs[half - 1]) return;
     let h1Idx = 0, h2Idx = 0, h1Diff = Infinity, h2Diff = Infinity;
@@ -396,6 +431,7 @@ function analyzeSamples(samples, sr) {
   });
   const h1h2 = h1h2Values.length ? h1h2Values.reduce((a, b) => a + b, 0) / h1h2Values.length : NaN;
   const meanF0 = f0Count ? f0Sum / f0Count : NaN;
+  const hnr = hnrValues.length ? hnrValues.reduce((a, b) => a + b, 0) / hnrValues.length : NaN;
 
   // 음색 선명도 (CPP)
   const qMin = 1 / 800, qMax = 1 / 60;
@@ -437,6 +473,7 @@ function analyzeSamples(samples, sr) {
     h1_h2_db: h1h2,
     singers_formant_ratio: formantRatio,
     cpp_db: cpp,
+    hnr_db: hnr,
     resonance_bands: resonanceBands,
   };
 }
@@ -445,12 +482,12 @@ function analyzeSamples(samples, sr) {
    4) 종합 판단 (흉성 / 두성 / 가성 / 생목소리)
    ========================================================================= */
 function classifyVoiceType(result, baselineStats) {
-  const { h1_h2_db: h1h2, cpp_db: cpp, singers_formant_ratio } = result;
+  const { h1_h2_db: h1h2, cpp_db: cpp, singers_formant_ratio, hnr_db: hnr } = result;
   const formantRatio = singers_formant_ratio * 100;
 
   if (isNaN(h1h2) || isNaN(cpp) || isNaN(formantRatio)) {
     return {
-      label: "판단 불가", color: "gray",
+      id: "unknown", label: "판단 불가", color: "gray",
       desc: "유성음 구간이 충분히 감지되지 않았어요. 조금 더 길고 또렷하게 발성해서 다시 시도해보세요."
     };
   }
@@ -459,33 +496,35 @@ function classifyVoiceType(result, baselineStats) {
   if (baselineStats) {
     // 평소 말하는 목소리(기준값) 대비 상대적으로 판단
     // - '조임': 평소보다 성대가 많이 풀리지 않았는지 (H1-H2가 기준보다 크게 안 높아짐)
-    // - '지지됨': 평소 말할 때보다 울림/선명도가 같거나 더 좋아졌는지
+    // - '지지됨': 평소 말할 때보다 울림/선명도/HNR(숨소리 적은 정도)가 같거나 더 좋아졌는지
     tight = h1h2 <= baselineStats.h1_h2_db + 4;
-    supported = cpp >= baselineStats.cpp_db - 1 && formantRatio >= baselineStats.formant_ratio;
+    const hnrOk = isNaN(hnr) || isNaN(baselineStats.hnr_db) ? true : hnr >= baselineStats.hnr_db - 2;
+    supported = cpp >= baselineStats.cpp_db - 1 && formantRatio >= baselineStats.formant_ratio && hnrOk;
   } else {
     // 기준값이 없을 때(설정 전)는 기존 절대 임계값 사용
     tight = h1h2 < 3;
-    supported = cpp >= 6 && formantRatio >= 3;
+    const hnrOk = isNaN(hnr) ? true : hnr >= 8;
+    supported = cpp >= 6 && formantRatio >= 3 && hnrOk;
   }
 
   if (tight && supported) {
     return {
-      label: "흉성에 가까운 소리", color: "coral",
+      id: "chest", label: "흉성에 가까운 소리", color: "coral",
       desc: "성대를 비교적 꽉 조여서 내고 있고, 소리도 또렷하게 잘 울리는 편이에요. 힘 있고 안정적인 흉성 발성에 가까워요."
     };
   } else if (tight && !supported) {
     return {
-      label: "생목소리에 가까운 소리", color: "amber",
+      id: "pressed", label: "생목소리에 가까운 소리", color: "amber",
       desc: "성대는 꽉 조인 상태인데 소리 울림이나 선명도가 약한 편이에요. 지지 없이 목에 힘으로만 밀어붙이고 있을 가능성이 있어요. 무리하면 목에 부담이 갈 수 있으니 호흡 지지를 점검해보세요."
     };
   } else if (!tight && supported) {
     return {
-      label: "두성에 가까운 소리", color: "teal",
+      id: "head", label: "두성에 가까운 소리", color: "teal",
       desc: "성대를 상대적으로 느슨하게 쓰면서도 소리가 잘 울리고 또렷한 편이에요. 공명이 잘 받쳐주는 두성/믹스보이스에 가까워요."
     };
   } else {
     return {
-      label: "가성에 가까운 소리", color: "blue",
+      id: "falsetto", label: "가성에 가까운 소리", color: "blue",
       desc: "성대를 느슨하게 쓰고 있고 소리 울림이나 선명도도 약한 편이에요. 바람이 섞인 가벼운 가성(팔세토)에 가까울 수 있어요."
     };
   }
@@ -513,6 +552,11 @@ function toCardData(result) {
       id: "cpp", label: "음색 선명도", sub: "CPP",
       value: r(result.cpp_db), unit: "dB",
       desc: "소리의 배음 구조가 얼마나 또렷한지를 나타내요. 값이 높을수록 깔끔하고 명료하게 들려요."
+    },
+    {
+      id: "hnr", label: "숨소리 적은 정도", sub: "HNR",
+      value: r(result.hnr_db), unit: "dB",
+      desc: "소리에서 배음(규칙적인 진동) 대비 숨소리·잡음이 얼마나 섞였는지를 나타내요. 값이 높을수록 숨소리가 적고 깨끗한 소리, 낮을수록 바람이 섞이거나 거친 소리에 가까워요."
     },
   ];
 }
@@ -542,6 +586,13 @@ function renderVerdict(v) {
   el.classList.remove("empty-state");
   el.style.background = c.bg;
   el.innerHTML = `<p class="v-label" style="color:${c.text}">${v.label}</p><p class="v-desc" style="color:${c.text}">${v.desc}</p>`;
+  updateStateIcons(v.id);
+}
+
+function updateStateIcons(activeId) {
+  document.querySelectorAll(".state-icon").forEach(el => {
+    el.classList.toggle("lit", el.dataset.id === activeId);
+  });
 }
 
 function resetVerdict() {
@@ -549,6 +600,7 @@ function resetVerdict() {
   el.classList.add("empty-state");
   el.style.background = "";
   el.textContent = "노래를 시작하면 실시간으로 판단이 표시돼요";
+  updateStateIcons(null);
 }
 
 function renderResonanceBands(bands) {
@@ -621,6 +673,7 @@ function saveBaseline(result) {
     cpp_db: result.cpp_db,
     formant_ratio: result.singers_formant_ratio * 100,
     spectral_tilt: result.spectral_tilt,
+    hnr_db: result.hnr_db,
     saved_at: Date.now(),
   };
   localStorage.setItem(BASELINE_KEY, JSON.stringify(stats));
@@ -675,6 +728,7 @@ async function startCalibration() {
     const result = analyzeSamples(samples, sr);
     saveBaseline(result);
     showScreen("live");
+    await startLiveListening(); // 기준값 설정 완료 즉시 별도 조작 없이 바로 체크 시작
   } catch (err) {
     console.error(err);
     showScreen("calibrate-intro");
