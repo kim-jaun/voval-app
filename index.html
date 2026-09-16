@@ -59,8 +59,37 @@
   }
   #calibrate-btn:active { transform: scale(0.95); }
 
-  /* live (실시간 분석 메인 화면) */
-  #screen-live { text-align: center; }
+  /* menu */
+  #screen-menu { text-align: center; }
+  .menu-title { font-size: 17px; font-weight: 700; margin-bottom: 18px; }
+  .menu-btn {
+    display: block; width: 100%; margin-bottom: 10px; padding: 16px;
+    border-radius: 14px; border: 0.5px solid #2A2D35; background: #1B1D24;
+    color: #EDEDEF; font-size: 15px; font-weight: 600; text-align: left; cursor: pointer;
+  }
+  .menu-btn .menu-btn-desc {
+    display: block; margin-top: 3px; font-size: 12px; font-weight: 400; color: #A8A8AE;
+  }
+  .menu-btn:active { transform: scale(0.98); }
+
+  /* check (체크 화면 공통) */
+  #screen-check { text-align: center; }
+  .check-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  #check-back-btn {
+    background: none; border: none; color: #A8A8AE; font-size: 20px; cursor: pointer; padding: 4px 8px;
+  }
+  #check-title { font-size: 15px; font-weight: 700; margin: 0; }
+  .tension-badge {
+    font-size: 11px; padding: 5px 10px; border-radius: 999px;
+    background: #1B1D24; border: 0.5px solid #2A2D35; color: #6E6E76;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .tension-badge.on { background: #3A1518; color: #FF8A80; border-color: transparent; box-shadow: 0 0 10px 1px rgba(255,80,80,0.25); }
+  .vowel-prompt {
+    color: #A8A8AE; font-size: 13px; margin: 4px 0 16px;
+  }
+  .vowel-prompt strong { color: #EDEDEF; }
+
   .live-toolbar { display: flex; flex-direction: column; align-items: center; margin-bottom: 14px; }
   #live-toggle-btn {
     width: 72px; height: 72px; border-radius: 50%;
@@ -79,27 +108,16 @@
   #live-f0-value { font-size: 34px; font-weight: 700; }
   .live-f0-unit { font-size: 14px; color: #A8A8AE; margin-left: 4px; }
 
-  #state-icons { display: flex; gap: 8px; margin-bottom: 14px; }
-  .state-icon {
-    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
-    padding: 10px 4px; border-radius: 12px; background: #1B1D24;
-    border: 0.5px solid #2A2D35; font-size: 11px; color: #6E6E76;
-    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  #pass-badge {
+    border-radius: 14px; padding: 16px; margin-bottom: 12px; text-align: left;
+    background: #1B1D24; border: 0.5px dashed #3A3D45; color: #6E6E76; font-size: 13px;
+    transition: background 0.2s ease, border-color 0.2s ease;
   }
-  .state-dot {
-    width: 14px; height: 14px; border-radius: 50%; background: #2A2D35;
-    transition: background 0.15s ease, box-shadow 0.15s ease;
-  }
-  .state-icon.lit { color: #EDEDEF; border-color: transparent; }
-  .state-icon.lit .state-dot { box-shadow: 0 0 8px 1px currentColor; }
-  .state-icon[data-id="falsetto"].lit { background: #1C2A3A; }
-  .state-icon[data-id="falsetto"].lit .state-dot { background: #8FC2FF; color: #8FC2FF; }
-  .state-icon[data-id="chest"].lit { background: #3A241C; }
-  .state-icon[data-id="chest"].lit .state-dot { background: #FFB199; color: #FFB199; }
-  .state-icon[data-id="head"].lit { background: #1C3A32; }
-  .state-icon[data-id="head"].lit .state-dot { background: #7FE0C4; color: #7FE0C4; }
-  .state-icon[data-id="pressed"].lit { background: #3A2E1C; }
-  .state-icon[data-id="pressed"].lit .state-dot { background: #F2C078; color: #F2C078; }
+  #pass-badge.pass { border-style: solid; }
+  #pass-badge .pb-label { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+  #pass-badge .pb-desc { font-size: 13px; line-height: 1.6; margin: 0; opacity: 0.92; }
+
+  #formant-cards { display: flex; flex-direction: column; gap: 10px; text-align: left; }
   .empty-state {
     background: #1B1D24; border: 0.5px dashed #3A3D45; border-radius: 14px;
     padding: 18px 16px; margin-bottom: 12px; color: #6E6E76; font-size: 13px;
@@ -191,10 +209,26 @@
     <p>기준값 설정 중</p>
   </div>
 
-  <div id="screen-live" class="screen">
+  <div id="screen-menu" class="screen">
+    <p class="menu-title">무엇을 연습해볼까요?</p>
+    <button class="menu-btn" data-mode="chest">흉성 체크<span class="menu-btn-desc">성대를 조여서 힘 있게 내는 소리, 목표까지 연습</span></button>
+    <button class="menu-btn" data-mode="head">두성 체크<span class="menu-btn-desc">성대를 느슨하게 풀어 잘 울리는 소리, 목표까지 연습</span></button>
+    <button class="menu-btn" data-mode="falsetto">가성 체크<span class="menu-btn-desc">바람이 섞인 가벼운 소리, 목표까지 연습</span></button>
+    <button class="menu-btn" data-mode="twang">트왕 체크<span class="menu-btn-desc">밝게 뻗는 공명(트왕) 경향 확인 — 포먼트 기반 실험적 기능</span></button>
+    <button id="menu-recalibrate-link" class="link-btn">평소 목소리 기준 다시 설정하기</button>
+  </div>
+
+  <div id="screen-check" class="screen">
+    <div class="check-header">
+      <button id="check-back-btn" aria-label="메뉴로">←</button>
+      <p id="check-title">흉성 체크</p>
+      <div id="tension-badge" class="tension-badge">목 긴장</div>
+    </div>
+    <p class="vowel-prompt" id="vowel-prompt">버튼을 누르고 <strong>"아~"</strong> 하고 편하게 소리를 유지해보세요</p>
+
     <div class="live-toolbar">
       <button id="live-toggle-btn" aria-label="실시간 분석 시작/정지">🎤</button>
-      <p id="live-status">탭해서 실시간 분석 시작</p>
+      <p id="live-status">탭해서 시작</p>
     </div>
     <div id="live-level-track"><div id="live-level-fill"></div></div>
     <p id="live-error" class="err-text"></p>
@@ -203,32 +237,31 @@
       <span id="live-f0-value">—</span><span class="live-f0-unit">Hz</span>
     </div>
 
-    <div id="state-icons">
-      <div class="state-icon" data-id="falsetto"><span class="state-dot"></span>가성</div>
-      <div class="state-icon" data-id="chest"><span class="state-dot"></span>흉성</div>
-      <div class="state-icon" data-id="head"><span class="state-dot"></span>두성</div>
-      <div class="state-icon" data-id="pressed"><span class="state-dot"></span>목에 힘줌</div>
+    <div id="pass-badge">목표 소리가 나올 때까지 계속 유지해보세요</div>
+
+    <div id="general-detail">
+      <div id="resonance-section">
+        <div class="resonance-header">
+          <p class="resonance-title">주로 울리는 위치 (추정)</p>
+          <button class="info-btn" id="resonance-info-btn" aria-label="울림 위치 추정 설명">i</button>
+        </div>
+        <div id="resonance-bars"></div>
+        <div class="card-tooltip" id="resonance-tooltip">
+          실제 신체 위치를 측정한 게 아니라, 전체적인 소리 감쇠 추세보다 어느 대역이
+          유독 튀어나와(에너지가 더 많이) 있는지를 계산해서, 보컬 교육에서 흔히 쓰는
+          표현(가슴/목·구강/마스크/머리)에 빗대어 추정한 값이에요. 오른쪽 숫자는 dB
+          단위 잔차이며, 값이 클수록(막대가 붉게 표시된 대역) 그 대역이 상대적으로
+          더 두드러진다는 뜻이에요. 체감하는 울림 위치와 다를 수 있어요.
+        </div>
+      </div>
+      <div id="cards"></div>
     </div>
 
-    <div id="verdict-banner" class="empty-state">노래를 시작하면 실시간으로 판단이 표시돼요</div>
-
-    <div id="resonance-section">
-      <div class="resonance-header">
-        <p class="resonance-title">주로 울리는 위치 (추정)</p>
-        <button class="info-btn" id="resonance-info-btn" aria-label="울림 위치 추정 설명">i</button>
-      </div>
-      <div id="resonance-bars"></div>
-      <div class="card-tooltip" id="resonance-tooltip">
-        실제 신체 위치를 측정한 게 아니라, 전체적인 소리 감쇠 추세보다 어느 대역이
-        유독 튀어나와(에너지가 더 많이) 있는지를 계산해서, 보컬 교육에서 흔히 쓰는
-        표현(가슴/목·구강/마스크/머리)에 빗대어 추정한 값이에요. 오른쪽 숫자는 dB
-        단위 잔차이며, 값이 클수록(막대가 붉게 표시된 대역) 그 대역이 상대적으로
-        더 두드러진다는 뜻이에요. 체감하는 울림 위치와 다를 수 있어요.
-      </div>
+    <div id="formant-detail" style="display:none">
+      <div id="formant-cards"></div>
     </div>
+
     <p class="disclaimer">참고용 지표이며 정확한 진단이 아닙니다. 약 1초 단위 스냅샷이라 순간적으로 값이 흔들릴 수 있어요.</p>
-    <div id="cards"></div>
-    <button id="recalibrate-link" class="link-btn">평소 목소리 기준 다시 설정하기</button>
   </div>
 </main>
 
@@ -481,15 +514,12 @@ function analyzeSamples(samples, sr) {
 /* =========================================================================
    4) 종합 판단 (흉성 / 두성 / 가성 / 생목소리)
    ========================================================================= */
-function classifyVoiceType(result, baselineStats) {
+function computeAxes(result, baselineStats) {
   const { h1_h2_db: h1h2, cpp_db: cpp, singers_formant_ratio, hnr_db: hnr } = result;
   const formantRatio = singers_formant_ratio * 100;
 
   if (isNaN(h1h2) || isNaN(cpp) || isNaN(formantRatio)) {
-    return {
-      id: "unknown", label: "판단 불가", color: "gray",
-      desc: "유성음 구간이 충분히 감지되지 않았어요. 조금 더 길고 또렷하게 발성해서 다시 시도해보세요."
-    };
+    return { valid: false, tight: null, supported: null };
   }
 
   let tight, supported;
@@ -506,29 +536,44 @@ function classifyVoiceType(result, baselineStats) {
     const hnrOk = isNaN(hnr) ? true : hnr >= 8;
     supported = cpp >= 6 && formantRatio >= 3 && hnrOk;
   }
-
-  if (tight && supported) {
-    return {
-      id: "chest", label: "흉성에 가까운 소리", color: "coral",
-      desc: "성대를 비교적 꽉 조여서 내고 있고, 소리도 또렷하게 잘 울리는 편이에요. 힘 있고 안정적인 흉성 발성에 가까워요."
-    };
-  } else if (tight && !supported) {
-    return {
-      id: "pressed", label: "생목소리에 가까운 소리", color: "amber",
-      desc: "성대는 꽉 조인 상태인데 소리 울림이나 선명도가 약한 편이에요. 지지 없이 목에 힘으로만 밀어붙이고 있을 가능성이 있어요. 무리하면 목에 부담이 갈 수 있으니 호흡 지지를 점검해보세요."
-    };
-  } else if (!tight && supported) {
-    return {
-      id: "head", label: "두성에 가까운 소리", color: "teal",
-      desc: "성대를 상대적으로 느슨하게 쓰면서도 소리가 잘 울리고 또렷한 편이에요. 공명이 잘 받쳐주는 두성/믹스보이스에 가까워요."
-    };
-  } else {
-    return {
-      id: "falsetto", label: "가성에 가까운 소리", color: "blue",
-      desc: "성대를 느슨하게 쓰고 있고 소리 울림이나 선명도도 약한 편이에요. 바람이 섞인 가벼운 가성(팔세토)에 가까울 수 있어요."
-    };
-  }
+  return { valid: true, tight, supported };
 }
+
+// 목 긴장 경고: 조임/이완과 무관하게 "지지력" 축 하나로만 독립 판단.
+// 모든 체크 모드(흉성/두성/가성/트왕)에서 공통으로 쓰는 경고 신호.
+function isThroatTense(axes) {
+  if (!axes.valid) return false;
+  return !axes.supported;
+}
+
+const CHECK_MODES = {
+  chest: {
+    title: "흉성 체크", vowel: "아",
+    targetTight: true, targetSupported: true,
+    passLabel: "흉성 감지!", passDesc: "성대를 꽉 조여서 내고 있고, 소리도 또렷하게 잘 울리고 있어요. 지금 상태를 유지해보세요.",
+    hintTight: "조금 더 성대를 붙여서 무게감 있게 내보세요.",
+    hintSupported: "지금보다 소리를 더 앞으로, 또렷하게 뻗어보세요.",
+  },
+  head: {
+    title: "두성 체크", vowel: "아",
+    targetTight: false, targetSupported: true,
+    passLabel: "두성 감지!", passDesc: "성대를 느슨하게 쓰면서도 소리가 잘 울리고 또렷해요. 지금 상태를 유지해보세요.",
+    hintTight: "성대에 힘을 좀 빼고 가볍게 흘려보내보세요.",
+    hintSupported: "소리가 힘없이 새고 있어요. 공명을 더 살려보세요.",
+  },
+  falsetto: {
+    title: "가성 체크", vowel: "아",
+    targetTight: false, targetSupported: false,
+    passLabel: "가성 감지!", passDesc: "성대를 느슨하게 쓰고, 바람이 섞인 가벼운 소리가 나고 있어요. 지금 상태를 유지해보세요.",
+    hintTight: "아직 성대가 조여있어요. 힘을 더 빼보세요.",
+    hintSupported: "소리가 너무 또렷해요. 더 가볍고 힘 뺀 소리를 시도해보세요.",
+  },
+  twang: {
+    title: "트왕 체크", vowel: "이", isFormant: true,
+    passLabel: "트왕 경향 감지!", passDesc: "밝고 뻗는 공명(트왕) 경향이 보여요. 다만 이 지표는 개인 기준값 없이 추정한 실험적 값이라 참고용으로만 봐주세요.",
+    failDesc: "아직 트왕 경향이 뚜렷하지 않아요. 조금 더 밝고 째지는 듯한 소리를 시도해보세요.",
+  },
+};
 
 function toCardData(result) {
   const r = (v, d = 1) => (v === null || isNaN(v)) ? "—" : Number(v.toFixed(d));
@@ -562,6 +607,150 @@ function toCardData(result) {
 }
 
 /* =========================================================================
+   4.5) 포먼트(LPC) 트래킹 — 트왕·비성 체크 전용 (실험적 기능)
+   "아/이" 등 모음을 일정 시간 유지했을 때에만 신뢰도가 있는 방식으로,
+   자유롭게 부르는 노래에는 적용하지 않음(모음이 계속 바뀌면 값이 불안정해짐).
+   ========================================================================= */
+
+function preEmphasis(frame, coeff = 0.97) {
+  const out = new Float64Array(frame.length);
+  out[0] = frame[0];
+  for (let i = 1; i < frame.length; i++) out[i] = frame[i] - coeff * frame[i - 1];
+  return out;
+}
+
+function autocorrelateLPC(frame, order) {
+  const n = frame.length;
+  const r = new Float64Array(order + 1);
+  for (let lag = 0; lag <= order; lag++) {
+    let sum = 0;
+    for (let i = 0; i < n - lag; i++) sum += frame[i] * frame[i + lag];
+    r[lag] = sum;
+  }
+  return r;
+}
+
+// Levinson-Durbin: 자기상관 r[0..order] -> LPC 계수 a[0..order] (a[0]=1)
+function levinsonDurbin(r, order) {
+  let a = new Float64Array(order + 1);
+  a[0] = 1;
+  let e = r[0];
+  if (e <= 1e-12) return null;
+  for (let i = 1; i <= order; i++) {
+    let acc = r[i];
+    for (let j = 1; j < i; j++) acc += a[j] * r[i - j];
+    const k = -acc / e;
+    const newA = a.slice();
+    newA[i] = k;
+    for (let j = 1; j < i; j++) newA[j] = a[j] + k * a[i - j];
+    a = newA;
+    e *= (1 - k * k);
+    if (e <= 1e-12) break;
+  }
+  return a;
+}
+
+// LPC 스펙트럴 엔벨로프를 지정된 주파수들에서 평가 (all-pole 필터 응답)
+function lpcEnvelope(a, sr, freqs) {
+  const order = a.length - 1;
+  const env = new Float64Array(freqs.length);
+  for (let fi = 0; fi < freqs.length; fi++) {
+    const w = 2 * Math.PI * freqs[fi] / sr;
+    let reSum = 1, imSum = 0;
+    for (let k = 1; k <= order; k++) {
+      reSum += a[k] * Math.cos(w * k);
+      imSum -= a[k] * Math.sin(w * k);
+    }
+    const mag2 = reSum * reSum + imSum * imSum;
+    env[fi] = mag2 > 1e-12 ? 1 / Math.sqrt(mag2) : 0;
+  }
+  return env;
+}
+
+function findEnvelopePeaks(env, freqs) {
+  const peaks = [];
+  for (let i = 1; i < env.length - 1; i++) {
+    if (env[i] > env[i - 1] && env[i] > env[i + 1]) peaks.push({ freq: freqs[i], amp: env[i] });
+  }
+  return peaks;
+}
+
+// 한 프레임에서 F1~F3 추정.
+// 방식: LPC 엔벨로프의 극대점(피크) 중 진폭이 너무 작은 잡음성 피크(가장 큰 피크 대비
+// 일정 비율 미만)만 걸러내고, 남은 피크들을 주파수 오름차순으로 F1/F2/F3에 배정.
+// (진폭 우선으로 고르면 포먼트끼리 가까울 때 순서가 뒤섞이는 문제가 있어 이 방식을 씀)
+function estimateFormantsFrame(frame, sr) {
+  const pre = preEmphasis(frame);
+  const win = hannWindow(pre.length);
+  const windowed = new Float64Array(pre.length);
+  for (let i = 0; i < pre.length; i++) windowed[i] = pre[i] * win[i];
+
+  const order = Math.min(Math.round(sr / 1000) + 2, 40);
+  const r = autocorrelateLPC(windowed, order);
+  const a = levinsonDurbin(r, order);
+  if (!a) return null;
+
+  const freqs = [];
+  for (let f = 50; f <= 4500; f += 10) freqs.push(f);
+  const env = lpcEnvelope(a, sr, freqs);
+  let peaks = findEnvelopePeaks(env, freqs);
+  if (peaks.length < 2) return null;
+
+  const maxAmp = Math.max(...peaks.map(p => p.amp));
+  peaks = peaks.filter(p => p.amp >= maxAmp * 0.15).sort((p1, p2) => p1.freq - p2.freq);
+  if (peaks.length < 2) return null;
+
+  return { f1: peaks[0]?.freq ?? null, f2: peaks[1]?.freq ?? null, f3: peaks[2]?.freq ?? null };
+}
+
+// (비강 역포먼트 탐지 시도는 검증 결과 신뢰도가 낮아 제거함 — 위쪽 함수 주석 참고)
+
+// 실시간 윈도우 샘플에서 포먼트/트왕/비성 추정 (여러 프레임의 중앙값 사용)
+function analyzeFormants(samples, sr) {
+  const frameSize = 1024, hop = 512;
+  const f1s = [], f2s = [], f3s = [];
+  for (let start = 0; start + frameSize <= samples.length; start += hop) {
+    const frame = samples.subarray(start, start + frameSize);
+    let energy = 0;
+    for (let i = 0; i < frame.length; i++) energy += frame[i] * frame[i];
+    if (energy / frame.length < 1e-6) continue; // 무음 프레임 skip
+    const f = estimateFormantsFrame(frame, sr);
+    if (f && f.f1 && f.f2) { f1s.push(f.f1); f2s.push(f.f2); if (f.f3) f3s.push(f.f3); }
+  }
+  const median = (arr) => {
+    if (!arr.length) return NaN;
+    const s = [...arr].sort((a, b) => a - b);
+    return s[Math.floor(s.length / 2)];
+  };
+  const f1 = median(f1s), f2 = median(f2s), f3 = median(f3s);
+
+  const frames = frameSignal(samples);
+  const spectra = frames.map(powerSpectrum);
+  const half = N_FFT / 2 + 1;
+  const meanSpectrum = new Float64Array(half);
+  for (const s of spectra) for (let i = 0; i < half; i++) meanSpectrum[i] += s[i] / spectra.length;
+  const freqs = binFreqs(sr);
+
+  // 트왕 경향(실험적 참고 지표 — 개인 기준값 없이 대략적인 절대 추정):
+  // 연구에서 나온 "포먼트 구조가 압축되는 경향 + 3kHz 부근 에너지"를 단순 조합한 근사치
+  let twangDetected = false;
+  if (!isNaN(f1) && !isNaN(f2)) {
+    let bandE = 0, totalE = 0;
+    for (let i = 0; i < half; i++) {
+      if (freqs[i] > 50 && freqs[i] < 8000) totalE += meanSpectrum[i];
+      if (freqs[i] >= 2500 && freqs[i] <= 3500) bandE += meanSpectrum[i];
+    }
+    const formantRatio = totalE > 0 ? (bandE / totalE) * 100 : 0;
+    const gap = f2 - f1;
+    twangDetected = formantRatio >= 4 && gap < 2200;
+  }
+
+  // 비강 역포먼트(찐 비성) 탐지는 검증 결과 신뢰도가 낮아 이번 버전에서는 제외함
+  // (LPC는 전극점 모델이라 역포먼트를 원천적으로 표현하지 못함 — 추후 별도 기법 필요)
+  return { f1, f2, f3, twang: { detected: twangDetected } };
+}
+
+/* =========================================================================
    5) 녹음 + 화면 흐름 제어
    ========================================================================= */
 const COLOR_MAP = {
@@ -572,7 +761,7 @@ const COLOR_MAP = {
   gray: { bg: "#26282F", text: "#C4C4CA" },
 };
 
-const screens = ["calibrate-intro", "calib-recording", "calib-analyzing", "live"].reduce((acc, k) => {
+const screens = ["calibrate-intro", "calib-recording", "calib-analyzing", "menu", "check"].reduce((acc, k) => {
   acc[k] = document.getElementById("screen-" + k); return acc;
 }, {});
 function showScreen(name) {
@@ -580,27 +769,55 @@ function showScreen(name) {
   screens[name].classList.add("active");
 }
 
-function renderVerdict(v) {
-  const c = COLOR_MAP[v.color] || COLOR_MAP.gray;
-  const el = document.getElementById("verdict-banner");
-  el.classList.remove("empty-state");
-  el.style.background = c.bg;
-  el.innerHTML = `<p class="v-label" style="color:${c.text}">${v.label}</p><p class="v-desc" style="color:${c.text}">${v.desc}</p>`;
-  updateStateIcons(v.id);
+// --- 목 긴장 경고 배지 (모든 체크 모드 공통, 조임/이완과 무관하게 독립 판단) ---
+function renderTensionBadge(tense) {
+  document.getElementById("tension-badge").classList.toggle("on", !!tense);
 }
 
-function updateStateIcons(activeId) {
-  document.querySelectorAll(".state-icon").forEach(el => {
-    el.classList.toggle("lit", el.dataset.id === activeId);
-  });
+// --- 통과 배지 (모드별 목표 달성 여부) ---
+function renderPassBadge(mode, axes) {
+  const el = document.getElementById("pass-badge");
+  const cfg = CHECK_MODES[mode];
+  if (!axes.valid) {
+    el.classList.remove("pass");
+    el.innerHTML = `<p class="pb-label">판단 대기 중</p><p class="pb-desc">유성음이 충분히 감지되지 않았어요. 조금 더 또렷하게 소리를 유지해보세요.</p>`;
+    return;
+  }
+  const pass = axes.tight === cfg.targetTight && axes.supported === cfg.targetSupported;
+  el.classList.toggle("pass", pass);
+  if (pass) {
+    el.innerHTML = `<p class="pb-label">✅ ${cfg.passLabel}</p><p class="pb-desc">${cfg.passDesc}</p>`;
+  } else {
+    const hint = axes.tight !== cfg.targetTight ? cfg.hintTight : cfg.hintSupported;
+    el.innerHTML = `<p class="pb-label">목표에 가까워지는 중</p><p class="pb-desc">${hint}</p>`;
+  }
 }
 
-function resetVerdict() {
-  const el = document.getElementById("verdict-banner");
-  el.classList.add("empty-state");
-  el.style.background = "";
-  el.textContent = "노래를 시작하면 실시간으로 판단이 표시돼요";
-  updateStateIcons(null);
+// --- 트왕 모드 전용 통과 배지 ---
+function renderTwangPassBadge(formantResult) {
+  const el = document.getElementById("pass-badge");
+  const cfg = CHECK_MODES.twang;
+  if (isNaN(formantResult.f1) || isNaN(formantResult.f2)) {
+    el.classList.remove("pass");
+    el.innerHTML = `<p class="pb-label">판단 대기 중</p><p class="pb-desc">"이~" 소리를 좀 더 또렷하게 유지해보세요.</p>`;
+    return;
+  }
+  el.classList.toggle("pass", formantResult.twang.detected);
+  if (formantResult.twang.detected) {
+    el.innerHTML = `<p class="pb-label">✅ ${cfg.passLabel}</p><p class="pb-desc">${cfg.passDesc}</p>`;
+  } else {
+    el.innerHTML = `<p class="pb-label">아직 감지되지 않음</p><p class="pb-desc">${cfg.failDesc}</p>`;
+  }
+}
+
+function resetCheckScreen() {
+  const el = document.getElementById("pass-badge");
+  el.classList.remove("pass");
+  el.innerHTML = "목표 소리가 나올 때까지 계속 유지해보세요";
+  renderTensionBadge(false);
+  document.getElementById("resonance-bars").innerHTML = "";
+  document.getElementById("cards").innerHTML = "";
+  document.getElementById("formant-cards").innerHTML = "";
 }
 
 function renderResonanceBands(bands) {
@@ -627,8 +844,9 @@ document.getElementById("resonance-info-btn").addEventListener("click", () => {
   tip.style.display = tip.style.display === "block" ? "none" : "block";
 });
 
-function renderCards(items) {
-  const el = document.getElementById("cards");
+// 지표 카드 렌더링 (일반 체크용 #cards, 트왕 체크용 #formant-cards에 공용으로 사용)
+function renderCardList(containerId, items) {
+  const el = document.getElementById(containerId);
   el.innerHTML = "";
   items.forEach(item => {
     const card = document.createElement("div");
@@ -639,14 +857,16 @@ function renderCards(items) {
           <p class="card-label">${item.label} <span class="sub">(${item.sub})</span></p>
           <p class="card-value">${item.value}<span class="unit">${item.unit}</span></p>
         </div>
-        <button class="info-btn" data-id="${item.id}" aria-label="${item.label} 설명">i</button>
+        <button class="info-btn" data-id="${containerId}-${item.id}" aria-label="${item.label} 설명">i</button>
       </div>
-      <div class="card-tooltip" data-id="${item.id}">${item.desc}</div>
+      <div class="card-tooltip" data-id="${containerId}-${item.id}">${item.desc}</div>
     `;
     el.appendChild(card);
   });
 }
-document.getElementById("cards").addEventListener("click", (e) => {
+document.getElementById("general-detail").addEventListener("click", handleCardInfoClick);
+document.getElementById("formant-detail").addEventListener("click", handleCardInfoClick);
+function handleCardInfoClick(e) {
   const btn = e.target.closest(".info-btn");
   if (!btn) return;
   const id = btn.dataset.id;
@@ -654,7 +874,19 @@ document.getElementById("cards").addEventListener("click", (e) => {
   const open = tip.style.display === "block";
   document.querySelectorAll(".card-tooltip").forEach(t => t.style.display = "none");
   tip.style.display = open ? "none" : "block";
-});
+}
+
+function toFormantCardData(fr) {
+  const r = (v) => (v === null || isNaN(v)) ? "—" : Math.round(v);
+  return [
+    { id: "f1", label: "F1 (첫 번째 포먼트)", sub: "Hz", value: r(fr.f1), unit: "Hz",
+      desc: "혀의 높낮이와 관련된 값이에요. 모음에 따라 원래 크게 달라지는 값이라 절대적인 좋고 나쁨은 없어요." },
+    { id: "f2", label: "F2 (두 번째 포먼트)", sub: "Hz", value: r(fr.f2), unit: "Hz",
+      desc: "혀의 앞뒤 위치와 관련된 값이에요. 이것도 모음마다 크게 달라져요." },
+    { id: "twang", label: "트왕 경향", sub: "실험적", value: fr.twang.detected ? "감지됨" : "약함", unit: "",
+      desc: "포먼트 구조와 3kHz 부근 에너지를 조합한 실험적 추정치예요. 개인 기준값이 없어 정확도가 검증되지 않았으니 참고만 해주세요." },
+  ];
+}
 
 /* =========================================================================
    6) 기준값(baseline) 저장/불러오기
@@ -727,8 +959,7 @@ async function startCalibration() {
     await new Promise(res => setTimeout(res, 300));
     const result = analyzeSamples(samples, sr);
     saveBaseline(result);
-    showScreen("live");
-    await startLiveListening(); // 기준값 설정 완료 즉시 별도 조작 없이 바로 체크 시작
+    showScreen("menu");
   } catch (err) {
     console.error(err);
     showScreen("calibrate-intro");
@@ -787,6 +1018,31 @@ function liveExtractWindow(windowSec) {
   return out;
 }
 
+let currentMode = null;
+
+function enterCheckMode(mode) {
+  currentMode = mode;
+  const cfg = CHECK_MODES[mode];
+  document.getElementById("check-title").textContent = cfg.title;
+  document.getElementById("vowel-prompt").innerHTML =
+    `버튼을 누르고 <strong>"${cfg.vowel}~"</strong> 하고 편하게 소리를 유지해보세요`;
+  document.getElementById("general-detail").style.display = cfg.isFormant ? "none" : "block";
+  document.getElementById("formant-detail").style.display = cfg.isFormant ? "block" : "none";
+  resetCheckScreen();
+  showScreen("check");
+}
+
+document.querySelectorAll(".menu-btn").forEach(btn => {
+  btn.addEventListener("click", () => enterCheckMode(btn.dataset.mode));
+});
+document.getElementById("check-back-btn").addEventListener("click", () => {
+  if (live.active) stopLiveListening();
+  showScreen("menu");
+});
+document.getElementById("menu-recalibrate-link").addEventListener("click", () => {
+  showScreen("calibrate-intro");
+});
+
 async function startLiveListening() {
   document.getElementById("live-error").style.display = "none";
   try {
@@ -811,7 +1067,7 @@ async function startLiveListening() {
 
     live.active = true;
     document.getElementById("live-toggle-btn").classList.add("on");
-    document.getElementById("live-status").textContent = "듣는 중… 노래해보세요";
+    document.getElementById("live-status").textContent = "듣는 중…";
 
     live.levelTimer = setInterval(() => {
       const pct = Math.min(100, live.currentLevel * 400); // 대략적인 스케일링
@@ -823,15 +1079,31 @@ async function startLiveListening() {
       const minSamples = LIVE_WINDOW_SEC * live.sr;
       if (live.totalWritten < minSamples) return; // 아직 1초 분량이 안 모임
       const windowSamples = liveExtractWindow(LIVE_WINDOW_SEC);
-      const result = analyzeSamples(windowSamples, live.sr);
+      const cfg = CHECK_MODES[currentMode];
 
-      document.getElementById("live-f0-value").textContent =
-        isNaN(result.mean_f0_hz) ? "—" : Math.round(result.mean_f0_hz);
+      if (cfg.isFormant) {
+        // 트왕 체크: 포먼트 기반 분석 (F0 표시용으로 analyzeSamples도 같이 실행)
+        const result = analyzeSamples(windowSamples, live.sr);
+        document.getElementById("live-f0-value").textContent =
+          isNaN(result.mean_f0_hz) ? "—" : Math.round(result.mean_f0_hz);
+        const axes = computeAxes(result, baseline);
+        renderTensionBadge(isThroatTense(axes));
 
-      const verdict = classifyVoiceType(result, baseline);
-      renderVerdict(verdict);
-      renderResonanceBands(result.resonance_bands);
-      renderCards(toCardData(result));
+        const formantResult = analyzeFormants(windowSamples, live.sr);
+        renderTwangPassBadge(formantResult);
+        renderCardList("formant-cards", toFormantCardData(formantResult));
+      } else {
+        // 일반 체크 (흉성/두성/가성): 기존 조임·지지력 축 기반 분석
+        const result = analyzeSamples(windowSamples, live.sr);
+        document.getElementById("live-f0-value").textContent =
+          isNaN(result.mean_f0_hz) ? "—" : Math.round(result.mean_f0_hz);
+
+        const axes = computeAxes(result, baseline);
+        renderPassBadge(currentMode, axes);
+        renderTensionBadge(isThroatTense(axes));
+        renderResonanceBands(result.resonance_bands);
+        renderCardList("cards", toCardData(result));
+      }
     }, LIVE_ANALYSIS_MS);
 
   } catch (err) {
@@ -857,25 +1129,19 @@ function stopLiveListening() {
   if (live.audioCtx) live.audioCtx.close();
 
   document.getElementById("live-toggle-btn").classList.remove("on");
-  document.getElementById("live-status").textContent = "탭해서 실시간 분석 시작";
+  document.getElementById("live-status").textContent = "탭해서 시작";
   document.getElementById("live-level-fill").style.width = "0%";
   document.getElementById("live-f0-value").textContent = "—";
-  resetVerdict();
-  document.getElementById("resonance-bars").innerHTML = "";
-  document.getElementById("cards").innerHTML = "";
+  resetCheckScreen();
 }
 
 document.getElementById("live-toggle-btn").addEventListener("click", () => {
   if (live.active) stopLiveListening(); else startLiveListening();
 });
 document.getElementById("calibrate-btn").addEventListener("click", startCalibration);
-document.getElementById("recalibrate-link").addEventListener("click", () => {
-  if (live.active) stopLiveListening();
-  showScreen("calibrate-intro");
-});
 
-// 시작 화면: 기준값이 이미 있으면 바로 live 화면, 없으면 기준값 설정부터
-showScreen(loadBaseline() ? "live" : "calibrate-intro");
+// 시작 화면: 기준값이 이미 있으면 메뉴로, 없으면 기준값 설정부터
+showScreen(loadBaseline() ? "menu" : "calibrate-intro");
 </script>
 </body>
 </html>
