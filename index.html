@@ -74,48 +74,74 @@
 
   /* check (체크 화면 공통) */
   #screen-check { text-align: center; }
-  .check-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .check-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   #check-back-btn {
     background: none; border: none; color: #A8A8AE; font-size: 20px; cursor: pointer; padding: 4px 8px;
   }
   #check-title { font-size: 15px; font-weight: 700; margin: 0; }
-  .tension-badge {
-    font-size: 11px; padding: 5px 10px; border-radius: 999px;
-    background: #1B1D24; border: 0.5px solid #2A2D35; color: #6E6E76;
-    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-  }
-  .tension-badge.on { background: #3A1518; color: #FF8A80; border-color: transparent; box-shadow: 0 0 10px 1px rgba(255,80,80,0.25); }
+  #live-f0-row { font-size: 13px; color: #A8A8AE; }
+  #live-f0-value { font-size: 16px; font-weight: 700; color: #EDEDEF; }
+  .live-f0-unit { font-size: 12px; color: #A8A8AE; margin-left: 2px; }
+
   .vowel-prompt {
-    color: #A8A8AE; font-size: 13px; margin: 4px 0 16px;
+    color: #A8A8AE; font-size: 13px; margin: 0 0 16px;
   }
   .vowel-prompt strong { color: #EDEDEF; }
 
-  .live-toolbar { display: flex; flex-direction: column; align-items: center; margin-bottom: 14px; }
-  #live-toggle-btn {
-    width: 72px; height: 72px; border-radius: 50%;
-    border: none; background: #2A6F4A; color: white;
-    font-size: 26px; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; margin-bottom: 10px;
-  }
-  #live-toggle-btn.on { background: #E5484D; }
-  #live-toggle-btn:active { transform: scale(0.95); }
-  #live-status { color: #A8A8AE; font-size: 13px; margin: 0; }
-  #live-level-track {
-    height: 6px; border-radius: 3px; background: #2A2D35; overflow: hidden; margin-bottom: 14px;
-  }
-  #live-level-fill { height: 100%; width: 0%; background: #3A6FE0; transition: width 0.08s linear; }
-  #live-f0-row { margin-bottom: 14px; }
-  #live-f0-value { font-size: 34px; font-weight: 700; }
-  .live-f0-unit { font-size: 14px; color: #A8A8AE; margin-left: 4px; }
-
   #pass-badge {
-    border-radius: 14px; padding: 16px; margin-bottom: 12px; text-align: left;
+    border-radius: 14px; padding: 16px; margin-bottom: 10px; text-align: left;
     background: #1B1D24; border: 0.5px dashed #3A3D45; color: #6E6E76; font-size: 13px;
     transition: background 0.2s ease, border-color 0.2s ease;
   }
-  #pass-badge.pass { border-style: solid; }
+  #pass-badge.pass {
+    border-style: solid; border-color: transparent; background: #16332180;
+  }
+  #pass-badge.pass .pb-label,
+  #pass-badge.pass .pb-desc { color: #6FE0A0; }
   #pass-badge .pb-label { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
   #pass-badge .pb-desc { font-size: 13px; line-height: 1.6; margin: 0; opacity: 0.92; }
+
+  /* 목 긴장 배지 — 작은 알약 형태 (판단 배지 대비 약 1/4 크기) */
+  .tension-badge {
+    display: flex; align-items: center; gap: 6px; width: fit-content;
+    font-size: 12px; padding: 6px 12px; border-radius: 999px; margin-bottom: 14px;
+    background: #1B1D24; border: 0.5px solid #2A2D35; color: #6E6E76;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .tension-badge i { font-size: 14px; }
+  .tension-badge.on { background: #3A1518; color: #FF8A80; border-color: transparent; }
+
+  #level-section { margin-bottom: 16px; }
+  .level-row {
+    display: flex; justify-content: space-between; font-size: 12px; color: #A8A8AE; margin-bottom: 4px;
+  }
+  #live-level-track {
+    height: 8px; border-radius: 4px; background: #2A2D35; overflow: hidden;
+  }
+  #live-level-fill { height: 100%; width: 0%; background: #3A6FE0; transition: width 0.08s linear; }
+
+  /* 검증용 기록 저장 UI */
+  #test-log-controls {
+    background: #1B1D24; border: 0.5px solid #2A2D35; border-radius: 14px;
+    padding: 14px; margin-bottom: 16px; text-align: left;
+  }
+  .test-log-label { font-size: 12px; color: #A8A8AE; margin: 0 0 8px; }
+  #user-label-options { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .user-label-pill {
+    font-size: 12px; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+    background: #22242C; border: 0.5px solid #3A3D45; color: #A8A8AE;
+  }
+  .user-label-pill.selected { background: #3A6FE0; border-color: transparent; color: white; }
+  #save-log-btn {
+    width: 100%; padding: 12px; border-radius: 10px; border: none;
+    background: #2A6F4A; color: white; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  #save-log-btn:disabled { background: #2A2D35; color: #6E6E76; cursor: not-allowed; }
+  #save-log-msg { font-size: 12px; color: #6FE0A0; margin: 8px 0 0; min-height: 14px; }
+
+  #test-log-section { margin-top: 18px; padding-top: 14px; border-top: 0.5px solid #2A2D35; }
+  #test-log-count { font-size: 12px; color: #6E6E76; margin: 0 0 8px; }
+  .link-btn.danger { color: #FF8A80; }
 
   #formant-cards { display: flex; flex-direction: column; gap: 10px; text-align: left; }
   .empty-state {
@@ -216,28 +242,44 @@
     <button class="menu-btn" data-mode="falsetto">가성 체크<span class="menu-btn-desc">바람이 섞인 가벼운 소리, 목표까지 연습</span></button>
     <button class="menu-btn" data-mode="twang">트왕 체크<span class="menu-btn-desc">밝게 뻗는 공명(트왕) 경향 확인 — 포먼트 기반 실험적 기능</span></button>
     <button id="menu-recalibrate-link" class="link-btn">평소 목소리 기준 다시 설정하기</button>
+
+    <div id="test-log-section">
+      <p id="test-log-count">저장된 테스트 기록: 0개</p>
+      <button id="export-log-btn" class="link-btn">테스트 기록 내보내기 (파일)</button>
+      <button id="clear-log-btn" class="link-btn danger">기록 초기화</button>
+    </div>
   </div>
 
   <div id="screen-check" class="screen">
     <div class="check-header">
       <button id="check-back-btn" aria-label="메뉴로">←</button>
       <p id="check-title">흉성 체크</p>
-      <div id="tension-badge" class="tension-badge">목 긴장</div>
+      <div id="live-f0-row"><span id="live-f0-value">—</span><span class="live-f0-unit">Hz</span></div>
     </div>
-    <p class="vowel-prompt" id="vowel-prompt">버튼을 누르고 <strong>"아~"</strong> 하고 편하게 소리를 유지해보세요</p>
-
-    <div class="live-toolbar">
-      <button id="live-toggle-btn" aria-label="실시간 분석 시작/정지">🎤</button>
-      <p id="live-status">탭해서 시작</p>
-    </div>
-    <div id="live-level-track"><div id="live-level-fill"></div></div>
+    <p class="vowel-prompt" id="vowel-prompt"><strong>"아~"</strong> 하고 편하게 소리를 유지해보세요</p>
     <p id="live-error" class="err-text"></p>
 
-    <div id="live-f0-row">
-      <span id="live-f0-value">—</span><span class="live-f0-unit">Hz</span>
+    <div id="pass-badge">목표 소리가 나올 때까지 계속 유지해보세요</div>
+
+    <div id="tension-badge" class="tension-badge">
+      <span aria-hidden="true">⚠️</span>
+      <span id="tension-badge-text">목 긴장 없음</span>
     </div>
 
-    <div id="pass-badge">목표 소리가 나올 때까지 계속 유지해보세요</div>
+    <div id="level-section">
+      <div class="level-row">
+        <span>입력 볼륨</span>
+        <span id="live-level-db">-∞ dB</span>
+      </div>
+      <div id="live-level-track"><div id="live-level-fill"></div></div>
+    </div>
+
+    <div id="test-log-controls">
+      <p class="test-log-label">지금 낸 소리는 실제로 뭐라고 생각해요? (검증용)</p>
+      <div id="user-label-options"></div>
+      <button id="save-log-btn" disabled>결과 저장</button>
+      <p id="save-log-msg"></p>
+    </div>
 
     <div id="general-detail">
       <div id="resonance-section">
@@ -772,6 +814,7 @@ function showScreen(name) {
 // --- 목 긴장 경고 배지 (모든 체크 모드 공통, 조임/이완과 무관하게 독립 판단) ---
 function renderTensionBadge(tense) {
   document.getElementById("tension-badge").classList.toggle("on", !!tense);
+  document.getElementById("tension-badge-text").textContent = tense ? "목 긴장 감지됨" : "목 긴장 없음";
 }
 
 // --- 통과 배지 (모드별 목표 달성 여부) ---
@@ -815,9 +858,20 @@ function resetCheckScreen() {
   el.classList.remove("pass");
   el.innerHTML = "목표 소리가 나올 때까지 계속 유지해보세요";
   renderTensionBadge(false);
+  document.getElementById("live-level-fill").style.width = "0%";
+  document.getElementById("live-level-db").textContent = "-∞ dB";
+  document.getElementById("live-f0-value").textContent = "—";
   document.getElementById("resonance-bars").innerHTML = "";
   document.getElementById("cards").innerHTML = "";
   document.getElementById("formant-cards").innerHTML = "";
+
+  selectedUserLabel = null;
+  lastSnapshot = null;
+  document.querySelectorAll(".user-label-pill").forEach(p => p.classList.remove("selected"));
+  const saveBtn = document.getElementById("save-log-btn");
+  if (saveBtn) saveBtn.disabled = true;
+  const msg = document.getElementById("save-log-msg");
+  if (msg) msg.textContent = "";
 }
 
 function renderResonanceBands(bands) {
@@ -910,6 +964,85 @@ function saveBaseline(result) {
   };
   localStorage.setItem(BASELINE_KEY, JSON.stringify(stats));
   return stats;
+}
+
+/* =========================================================================
+   6.5) 검증용 테스트 기록 (사용자가 직접 라벨을 붙여 저장, 나중에 파일로 내보냄)
+   ========================================================================= */
+const TEST_LOG_KEY = "vocalAppTestLog_v1";
+const USER_LABELS = [
+  { id: "chest", text: "흉성" },
+  { id: "head", text: "두성" },
+  { id: "falsetto", text: "가성" },
+  { id: "twang", text: "트왕" },
+  { id: "pressed", text: "무리한 소리(목긴장)" },
+];
+
+function loadTestLog() {
+  try {
+    const raw = localStorage.getItem(TEST_LOG_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+function appendTestLog(entry) {
+  const log = loadTestLog();
+  log.push(entry);
+  localStorage.setItem(TEST_LOG_KEY, JSON.stringify(log));
+  return log;
+}
+function clearTestLog() {
+  localStorage.removeItem(TEST_LOG_KEY);
+}
+function updateTestLogCount() {
+  const el = document.getElementById("test-log-count");
+  if (el) el.textContent = `저장된 테스트 기록: ${loadTestLog().length}개`;
+}
+function exportTestLog() {
+  const log = loadTestLog();
+  const blob = new Blob([JSON.stringify(log, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `vocal_test_log_${Date.now()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+let selectedUserLabel = null;
+let lastSnapshot = null; // 가장 최근 분석 결과 스냅샷 (저장 버튼용)
+
+function renderUserLabelOptions() {
+  const el = document.getElementById("user-label-options");
+  el.innerHTML = "";
+  USER_LABELS.forEach(l => {
+    const btn = document.createElement("button");
+    btn.className = "user-label-pill";
+    btn.textContent = l.text;
+    btn.dataset.id = l.id;
+    btn.addEventListener("click", () => {
+      selectedUserLabel = l.id;
+      document.querySelectorAll(".user-label-pill").forEach(p => p.classList.toggle("selected", p === btn));
+      document.getElementById("save-log-btn").disabled = !lastSnapshot;
+    });
+    el.appendChild(btn);
+  });
+}
+
+function handleSaveLog() {
+  if (!selectedUserLabel || !lastSnapshot) return;
+  const entry = {
+    timestamp: new Date().toISOString(),
+    mode: currentMode,
+    user_label: selectedUserLabel,
+    ...lastSnapshot,
+  };
+  appendTestLog(entry);
+  updateTestLogCount();
+  const msg = document.getElementById("save-log-msg");
+  msg.textContent = "저장됐어요!";
+  setTimeout(() => { if (msg.textContent === "저장됐어요!") msg.textContent = ""; }, 1500);
 }
 
 let mediaRecorder, chunks = [], calibTimerHandle;
@@ -1020,16 +1153,17 @@ function liveExtractWindow(windowSec) {
 
 let currentMode = null;
 
-function enterCheckMode(mode) {
+async function enterCheckMode(mode) {
   currentMode = mode;
   const cfg = CHECK_MODES[mode];
   document.getElementById("check-title").textContent = cfg.title;
   document.getElementById("vowel-prompt").innerHTML =
-    `버튼을 누르고 <strong>"${cfg.vowel}~"</strong> 하고 편하게 소리를 유지해보세요`;
+    `<strong>"${cfg.vowel}~"</strong> 하고 편하게 소리를 유지해보세요`;
   document.getElementById("general-detail").style.display = cfg.isFormant ? "none" : "block";
   document.getElementById("formant-detail").style.display = cfg.isFormant ? "block" : "none";
   resetCheckScreen();
   showScreen("check");
+  await startLiveListening(); // 별도 시작 버튼 없이 화면 진입 즉시 듣기 시작
 }
 
 document.querySelectorAll(".menu-btn").forEach(btn => {
@@ -1040,6 +1174,7 @@ document.getElementById("check-back-btn").addEventListener("click", () => {
   showScreen("menu");
 });
 document.getElementById("menu-recalibrate-link").addEventListener("click", () => {
+  if (live.active) stopLiveListening();
   showScreen("calibrate-intro");
 });
 
@@ -1066,12 +1201,12 @@ async function startLiveListening() {
     live.silentGain.connect(live.audioCtx.destination);
 
     live.active = true;
-    document.getElementById("live-toggle-btn").classList.add("on");
-    document.getElementById("live-status").textContent = "듣는 중…";
 
     live.levelTimer = setInterval(() => {
       const pct = Math.min(100, live.currentLevel * 400); // 대략적인 스케일링
       document.getElementById("live-level-fill").style.width = pct.toFixed(0) + "%";
+      const db = live.currentLevel > 1e-5 ? 20 * Math.log10(live.currentLevel) : -Infinity;
+      document.getElementById("live-level-db").textContent = isFinite(db) ? Math.round(db) + " dB" : "-∞ dB";
     }, 100);
 
     const baseline = loadBaseline();
@@ -1087,11 +1222,23 @@ async function startLiveListening() {
         document.getElementById("live-f0-value").textContent =
           isNaN(result.mean_f0_hz) ? "—" : Math.round(result.mean_f0_hz);
         const axes = computeAxes(result, baseline);
-        renderTensionBadge(isThroatTense(axes));
+        const tense = isThroatTense(axes);
+        renderTensionBadge(tense);
 
         const formantResult = analyzeFormants(windowSamples, live.sr);
         renderTwangPassBadge(formantResult);
         renderCardList("formant-cards", toFormantCardData(formantResult));
+
+        lastSnapshot = {
+          pass: !!formantResult.twang.detected,
+          tension: tense,
+          mean_f0_hz: result.mean_f0_hz,
+          f1: formantResult.f1, f2: formantResult.f2, f3: formantResult.f3,
+          h1_h2_db: result.h1_h2_db, cpp_db: result.cpp_db, hnr_db: result.hnr_db,
+          spectral_tilt: result.spectral_tilt,
+          formant_ratio: result.singers_formant_ratio * 100,
+        };
+        if (selectedUserLabel) document.getElementById("save-log-btn").disabled = false;
       } else {
         // 일반 체크 (흉성/두성/가성): 기존 조임·지지력 축 기반 분석
         const result = analyzeSamples(windowSamples, live.sr);
@@ -1099,10 +1246,23 @@ async function startLiveListening() {
           isNaN(result.mean_f0_hz) ? "—" : Math.round(result.mean_f0_hz);
 
         const axes = computeAxes(result, baseline);
+        const cfgM = CHECK_MODES[currentMode];
+        const pass = axes.valid && axes.tight === cfgM.targetTight && axes.supported === cfgM.targetSupported;
+        const tense = isThroatTense(axes);
         renderPassBadge(currentMode, axes);
-        renderTensionBadge(isThroatTense(axes));
+        renderTensionBadge(tense);
         renderResonanceBands(result.resonance_bands);
         renderCardList("cards", toCardData(result));
+
+        lastSnapshot = {
+          pass, tension: tense,
+          tight: axes.tight, supported: axes.supported,
+          mean_f0_hz: result.mean_f0_hz,
+          h1_h2_db: result.h1_h2_db, cpp_db: result.cpp_db, hnr_db: result.hnr_db,
+          spectral_tilt: result.spectral_tilt,
+          formant_ratio: result.singers_formant_ratio * 100,
+        };
+        if (selectedUserLabel) document.getElementById("save-log-btn").disabled = false;
       }
     }, LIVE_ANALYSIS_MS);
 
@@ -1127,18 +1287,21 @@ function stopLiveListening() {
   if (live.silentGain) live.silentGain.disconnect();
   if (live.stream) live.stream.getTracks().forEach(t => t.stop());
   if (live.audioCtx) live.audioCtx.close();
-
-  document.getElementById("live-toggle-btn").classList.remove("on");
-  document.getElementById("live-status").textContent = "탭해서 시작";
-  document.getElementById("live-level-fill").style.width = "0%";
-  document.getElementById("live-f0-value").textContent = "—";
   resetCheckScreen();
 }
 
-document.getElementById("live-toggle-btn").addEventListener("click", () => {
-  if (live.active) stopLiveListening(); else startLiveListening();
-});
 document.getElementById("calibrate-btn").addEventListener("click", startCalibration);
+
+renderUserLabelOptions();
+document.getElementById("save-log-btn").addEventListener("click", handleSaveLog);
+document.getElementById("export-log-btn").addEventListener("click", exportTestLog);
+document.getElementById("clear-log-btn").addEventListener("click", () => {
+  if (confirm("저장된 테스트 기록을 전부 삭제할까요? 되돌릴 수 없어요.")) {
+    clearTestLog();
+    updateTestLogCount();
+  }
+});
+updateTestLogCount();
 
 // 시작 화면: 기준값이 이미 있으면 메뉴로, 없으면 기준값 설정부터
 showScreen(loadBaseline() ? "menu" : "calibrate-intro");
