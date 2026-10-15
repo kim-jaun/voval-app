@@ -120,6 +120,45 @@
   }
   #live-level-fill { height: 100%; width: 0%; background: #3A6FE0; transition: width 0.08s linear; }
 
+  /* 캘리브레이션 2단계 보조 스타일 */
+  .calib-step { font-size: 12px; color: #7FA8E0; margin: 0 0 4px; font-weight: 600; }
+  .calib-hint { font-size: 12px; color: #6E6E76; margin: -14px 0 22px; }
+  .calib-prompt { font-size: 15px; color: #EDEDEF; line-height: 1.6; margin: 6px 0 10px; padding: 0 6px; }
+  #screen-calib-step2 { text-align: center; }
+  #screen-calib-step2 p { color: #A8A8AE; font-size: 14px; line-height: 1.6; margin-bottom: 14px; }
+  #screen-calib-step2 .calib-sentence { font-size: 14px; text-align: left; line-height: 1.7; }
+  #calibrate2-btn {
+    width: 88px; height: 88px; border-radius: 50%; border: none; background: #3A6FE0; color: white;
+    font-size: 30px; margin: 0 auto; display: flex; align-items: center; justify-content: center; cursor: pointer;
+  }
+
+  /* 개발 패널 */
+  #dev-panel {
+    background: #14161B; border: 0.5px solid #2A2D35; border-radius: 14px;
+    padding: 12px; margin-bottom: 16px; text-align: left;
+  }
+  .dev-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .dev-title { font-size: 13px; font-weight: 700; color: #EDEDEF; }
+  #dev-freeze-btn {
+    font-size: 12px; padding: 6px 10px; border-radius: 8px; cursor: pointer;
+    background: #22242C; border: 0.5px solid #3A3D45; color: #EDEDEF;
+  }
+  #dev-freeze-btn.on { background: #3A6FE0; border-color: transparent; }
+  .dev-sub { font-size: 12px; font-weight: 600; color: #C4C4CA; margin: 14px 0 6px; }
+  .dev-note { font-size: 11px; color: #6E6E76; line-height: 1.5; margin: 4px 0 0; }
+  .dev-canvas { width: 100%; display: block; background: #101216; border-radius: 10px; }
+  .slider-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .slider-row label { font-size: 11px; color: #A8A8AE; width: 118px; flex-shrink: 0; line-height: 1.3; }
+  .slider-row input[type=range] { flex: 1; accent-color: #3A6FE0; min-width: 0; }
+  .slider-row .sv { font-size: 12px; color: #EDEDEF; width: 44px; text-align: right; flex-shrink: 0; }
+  .dev-reset { font-size: 11px; color: #7FA8E0; background: none; border: none; text-decoration: underline; cursor: pointer; padding: 2px 0; }
+  .dev-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .dev-table th, .dev-table td { padding: 4px 3px; border-bottom: 0.5px solid #23262D; text-align: right; color: #C4C4CA; }
+  .dev-table th { color: #6E6E76; font-weight: 500; }
+  .dev-table td:first-child, .dev-table th:first-child { text-align: left; }
+  .dev-table .ok { color: #6FE0A0; }
+  .dev-table .bad { color: #FF8A80; }
+
   /* 검증용 기록 저장 UI */
   #test-log-controls {
     background: #1B1D24; border: 0.5px solid #2A2D35; border-radius: 14px;
@@ -217,22 +256,35 @@
 
 <main>
   <div id="screen-calibrate-intro" class="screen">
-    <p class="calib-title">먼저 평소 목소리를 설정할게요</p>
-    <p>노래 말고, <strong>평소에 말하는 톤</strong>으로 아래 문장을 편하게 읽어주세요.<br>이 기준으로 노래할 때 얼마나 달라지는지를 비교해요.</p>
-    <p class="calib-sentence">"안녕하세요, 오늘 하루도 즐겁게 보내세요"</p>
-    <button id="calibrate-btn" aria-label="기본값 녹음 시작">🎤</button>
+    <p class="calib-step">1 / 2단계</p>
+    <p class="calib-title">평소 목소리 기준을 잡을게요</p>
+    <p>조용한 곳에서 폰을 입에서 한 뼘(약 20cm) 정도 떨어뜨리고,<br><strong>평소 말할 때의 높이와 힘</strong>으로 편안하게<br>"아~" 소리를 <strong>5초간 길게</strong> 내주세요.</p>
+    <p class="calib-sentence">"아~~~~~~"</p>
+    <p class="calib-hint">노래하듯 높이거나 억지로 키우지 말고, 말하는 목소리 그대로요.</p>
+    <button id="calibrate-btn" aria-label="1단계 녹음 시작">🎤</button>
     <p id="calib-error" class="err-text"></p>
+  </div>
+
+  <div id="screen-calib-step2" class="screen">
+    <p class="calib-step">2 / 2단계</p>
+    <p class="calib-title">평소 말투도 기록해둘게요</p>
+    <p>아래 문장을 <strong>평소 말하듯 자연스럽게</strong> 읽어주세요. (약 10초)</p>
+    <p class="calib-sentence">"안녕하세요, 오늘 하루도 즐겁게 보내세요. 저는 주말마다 가까운 공원에서 천천히 산책을 해요. 맑은 하늘을 바라보면 기분이 좋아져요."</p>
+    <button id="calibrate2-btn" aria-label="2단계 녹음 시작">🎤</button>
+    <button id="calib-skip-btn" class="link-btn">건너뛰기 (1단계 기준값만 사용)</button>
+    <p id="calib2-error" class="err-text"></p>
   </div>
 
   <div id="screen-calib-recording" class="screen">
     <div class="pulse-dot">🎤</div>
-    <p class="label" id="calib-recording-label">평소 목소리로 읽는 중</p>
+    <p class="label" id="calib-recording-label">녹음 중</p>
+    <p id="calib-prompt" class="calib-prompt"></p>
     <p id="calib-timer">0.0초</p>
   </div>
 
   <div id="screen-calib-analyzing" class="screen">
     <div class="spinner"></div>
-    <p>기준값 설정 중</p>
+    <p>분석 중</p>
   </div>
 
   <div id="screen-menu" class="screen">
@@ -272,6 +324,39 @@
         <span id="live-level-db">-∞ dB</span>
       </div>
       <div id="live-level-track"><div id="live-level-fill"></div></div>
+    </div>
+
+    <div id="dev-panel">
+      <div class="dev-head">
+        <span class="dev-title">개발 패널 (실시간)</span>
+        <button id="dev-freeze-btn" type="button">⏸ 일시정지</button>
+      </div>
+      <p id="dev-baseline-info" class="dev-note"></p>
+      <p id="dev-mic-info" class="dev-note"></p>
+
+      <div id="dev-general">
+        <p class="dev-sub">① 조임 × 지지 평면 (점이 영역에 들어가면 판정이 바뀜)</p>
+        <canvas id="scatter-canvas" class="dev-canvas"></canvas>
+        <p class="dev-note">가로: 성대 조임(기준 대비 H1-H2 증가량, 왼쪽일수록 조임) · 세로: 지지 여유(CPP·HNR·울림감 중 가장 부족한 지표 기준, 0 위=지지됨) · 아래쪽 붉은 영역 = 목 긴장 경고 구간</p>
+        <p class="dev-sub">② 지표별 추이 (최근 약 24초) — 점선: 기준값 / 주황: 판정 한계 / 세로선: 판정 전환</p>
+        <canvas id="strips-canvas" class="dev-canvas"></canvas>
+        <p class="dev-sub">③ 판정 여유값 조절 (바로 판정에 반영됨)</p>
+        <div id="margin-sliders"></div>
+        <p class="dev-sub">④ 현재 값 · 판정 근거</p>
+        <div id="dev-table"></div>
+      </div>
+
+      <div id="dev-twang" style="display:none">
+        <p class="dev-sub">① 모음 공간 (F1 × F2)</p>
+        <canvas id="vowel-canvas" class="dev-canvas"></canvas>
+        <p class="dev-note">가로: F2(Hz) · 세로: F1(Hz) · 초록 영역 = F2−F1 간격이 한계보다 좁은 구간(포먼트 압축) · 점 색: 초록=울림감 기준 충족</p>
+        <p class="dev-sub">② 지표별 추이 (최근 약 24초)</p>
+        <canvas id="twang-strips-canvas" class="dev-canvas"></canvas>
+        <p class="dev-sub">③ 트왕 판정 임계값 조절</p>
+        <div id="twang-sliders"></div>
+        <p class="dev-sub">④ 현재 값 · 판정 근거</p>
+        <div id="dev-twang-table"></div>
+      </div>
     </div>
 
     <div id="test-log-controls">
@@ -385,49 +470,174 @@ function binFreqs(sr) {
   return freqs;
 }
 
-// 자기상관 기반 F0 추정 (프레임 단위)
-function estimatePitch(frame, sr, fmin = 65, fmax = 1046) {
-  const n = frame.length;
-  const lagMin = Math.floor(sr / fmax);
-  const lagMax = Math.min(Math.floor(sr / fmin), n - 1);
+/* =========================================================================
+   2.5) 프레임 에너지 게이트 — 무음/숨 쉬는 구간이 지표 평균에 섞이지 않게 걸러냄
+   (Python 프로토타입의 librosa.effects.trim 에 해당하던 단계가 JS 이식 때 빠져 있었음)
+   ========================================================================= */
+const GATE = { percentile: 0.9, relThreshold: 0.3, absFloor: 0.003, minActiveFrames: 5, minBalance: 0.8 };
+const MIN_VOICED_FRAMES = 3;
 
-  // 평균 제거
-  let mean = 0;
-  for (let i = 0; i < n; i++) mean += frame[i];
-  mean /= n;
+// 프레임 전체 RMS와, 앞절반/뒷절반 RMS의 균형(balance: 작은 쪽/큰 쪽, 1에 가까울수록 안정)
+function frameStats(frame) {
+  const n = frame.length, h = n >> 1;
+  let s1 = 0, s2 = 0;
+  for (let i = 0; i < h; i++) s1 += frame[i] * frame[i];
+  for (let i = h; i < n; i++) s2 += frame[i] * frame[i];
+  const r1 = Math.sqrt(s1 / h), r2 = Math.sqrt(s2 / (n - h));
+  const hi = Math.max(r1, r2);
+  return { rms: Math.sqrt((s1 + s2) / n), balance: hi > 0 ? Math.min(r1, r2) / hi : 0 };
+}
 
-  let energy0 = 0;
-  for (let i = 0; i < n; i++) energy0 += (frame[i] - mean) ** 2;
-  if (energy0 < 1e-9) return { f0: null, voiced: false };
-
-  let bestLag = -1, bestCorr = -1;
-  for (let lag = lagMin; lag <= lagMax; lag++) {
-    let corr = 0;
-    for (let i = 0; i < n - lag; i++) {
-      corr += (frame[i] - mean) * (frame[i + lag] - mean);
-    }
-    corr /= energy0;
-    if (corr > bestCorr) { bestCorr = corr; bestLag = lag; }
+// 선택 기준
+//  1) RMS가 (상위 10% 지점 RMS의 30%) 및 절대 하한 이상  → 무음/숨 구간 제거
+//     (최댓값 대신 백분위: 화면을 톡 치는 순간적 큰 잡음에 기준이 끌려가지 않게)
+//  2) 프레임 앞/뒤 절반 에너지가 비슷할 것(balance ≥ 0.8) → 소리가 막 시작/끝나는 "반만 찬" 프레임 제거
+//     (이런 프레임이 섞이면 HNR이 3dB, 틸트가 4dB 이상 어긋남을 합성 테스트로 확인)
+function selectActiveFrameIdx(frames) {
+  const stats = frames.map(frameStats);
+  if (!stats.length) return { idx: [], ratio: 0, refRms: 0 };
+  const sorted = stats.map(s => s.rms).sort((a, b) => a - b);
+  const ref = sorted[Math.min(sorted.length - 1, Math.floor(GATE.percentile * (sorted.length - 1)))];
+  const cut = Math.max(GATE.absFloor, ref * GATE.relThreshold);
+  const idx = [];
+  for (let i = 0; i < stats.length; i++) {
+    if (stats[i].rms >= cut && stats[i].balance >= GATE.minBalance) idx.push(i);
   }
-  const voiced = bestCorr > 0.35 && bestLag > 0;
-  // HNR(배음 대 잡음 비율): 자기상관 최대값(r)에서 바로 유도 가능
-  // r=1이면 완벽히 주기적(잡음 없음), r이 낮을수록 잡음(숨소리 등) 비중이 큼
-  const rClamped = Math.min(0.999999, Math.max(0, bestCorr));
-  const hnrDb = voiced ? 10 * Math.log10(rClamped / (1 - rClamped)) : null;
-  return { f0: voiced ? sr / bestLag : null, voiced, hnrDb };
+  return { idx, ratio: idx.length / frames.length, refRms: ref };
 }
 
 /* =========================================================================
-   3) 4가지 지표 계산 (Python vocal_indicators.py 로직과 동일하게 이식)
+   피치(F0) + HNR : 정규화 상호상관(NCC) 방식
+   - 예전 방식(프레임 전체 에너지로 나누는 편향 자기상관)은 낮은 음일수록 상관값이 작게
+     계산돼서 HNR이 음높이에 따라 5→13dB로 요동쳤음. 겹치는 구간끼리 정규화하면
+     음높이와 무관하게 이론값(약 22.7dB, 합성 테스트 기준)에 맞음.
+   - 같은 상관값의 후보가 여러 개면(2배 주기 등) 가장 짧은 주기를 선택
    ========================================================================= */
+function estimatePitch(frame, sr, fmin = 65, fmax = 1046) {
+  const n = frame.length;
+  const lagMin = Math.max(2, Math.floor(sr / fmax));
+  const lagMax = Math.min(Math.floor(sr / fmin), Math.floor(n / 2));
+  let mean = 0;
+  for (let i = 0; i < n; i++) mean += frame[i];
+  mean /= n;
+  const x = new Float64Array(n);
+  for (let i = 0; i < n; i++) x[i] = frame[i] - mean;
+  const cum = new Float64Array(n + 1);
+  for (let i = 0; i < n; i++) cum[i + 1] = cum[i] + x[i] * x[i];
+  if (cum[n] < 1e-9) return { f0: null, voiced: false, hnrDb: null, r: 0 };
+
+  const r = new Float64Array(lagMax + 2);
+  for (let lag = lagMin - 1; lag <= lagMax + 1; lag++) {
+    if (lag < 1 || lag > n - 2) continue;
+    let c = 0;
+    for (let i = 0; i < n - lag; i++) c += x[i] * x[i + lag];
+    const d = Math.sqrt((cum[n - lag] - cum[0]) * (cum[n] - cum[lag]));
+    r[lag] = d > 1e-12 ? c / d : 0;
+  }
+  let maxR = -1;
+  for (let lag = lagMin; lag <= lagMax; lag++) if (r[lag] > maxR) maxR = r[lag];
+  let best = -1;
+  for (let lag = lagMin; lag <= lagMax; lag++) {
+    if (r[lag] >= 0.9 * maxR && r[lag] >= r[lag - 1] && r[lag] >= r[lag + 1]) { best = lag; break; }
+  }
+  if (best < 0) return { f0: null, voiced: false, hnrDb: null, r: maxR };
+
+  // 포물선 보간으로 서브샘플 정밀도 확보
+  let lagF = best, rPeak = r[best];
+  const a = r[best - 1], b = r[best], c2 = r[best + 1];
+  const den = a - 2 * b + c2;
+  if (Math.abs(den) > 1e-12) {
+    const d = 0.5 * (a - c2) / den;
+    if (Math.abs(d) < 1) { lagF = best + d; rPeak = b - 0.25 * (a - c2) * d; }
+  }
+  const voiced = rPeak > 0.45;
+  const rc = Math.min(0.9999, Math.max(1e-4, rPeak));
+  return { f0: voiced ? sr / lagF : null, voiced, hnrDb: voiced ? 10 * Math.log10(rc / (1 - rc)) : null, r: rPeak };
+}
+
+// 하모닉(배음) 진폭(dB): 목표 주파수 근처 국소 최대 + 포물선 보간
+// (FFT bin 중앙에서 벗어난 하모닉이 최대 1.4dB 작게 읽히는 '스캘로핑 손실' 보정 →
+//  H1-H2 측정 오차 ±1.5dB → ±0.25dB)
+function peakDbInterp(power, freqs, target) {
+  const binW = freqs[1] - freqs[0];
+  const halfW = Math.max(binW * 1.5, target * 0.04);
+  let bi = -1, bv = -Infinity;
+  for (let i = 1; i < freqs.length - 1; i++) {
+    if (freqs[i] >= target - halfW && freqs[i] <= target + halfW) {
+      const v = 10 * Math.log10(power[i] + 1e-12);
+      if (v > bv) { bv = v; bi = i; }
+    }
+  }
+  if (bi < 1) return bv;
+  const a = 10 * Math.log10(power[bi - 1] + 1e-12), b = bv, c = 10 * Math.log10(power[bi + 1] + 1e-12);
+  const den = a - 2 * b + c;
+  if (Math.abs(den) < 1e-9) return b;
+  const p = 0.5 * (a - c) / den;
+  return b - 0.25 * (a - c) * p;
+}
+
+/* =========================================================================
+   CPP(음색 선명도): 분석창 4096 샘플
+   - 2048은 낮은 음에서 하모닉이 덜 분리돼 CPP가 낮게 나옴(음높이 100→500Hz에서 2.0dB 편차).
+     4096으로 늘리면 편차가 약 0.5dB로 줄어듦.
+   ========================================================================= */
+const CPP_N = 4096, CPP_HOP = 1024;
+const _hannCache = {};
+function hannCached(n) { return _hannCache[n] || (_hannCache[n] = hannWindow(n)); }
+
+function cppOfFrame(frame, sr, fmin = 60, fmax = 800) {
+  const N = CPP_N, half = N / 2 + 1;
+  const w = hannCached(N);
+  const re = new Float64Array(N), im = new Float64Array(N);
+  for (let i = 0; i < N; i++) re[i] = frame[i] * w[i];
+  fft(re, im);
+  const lf = new Float64Array(N), im2 = new Float64Array(N);
+  for (let i = 0; i < half; i++) lf[i] = Math.log(re[i] * re[i] + im[i] * im[i] + 1e-12);
+  for (let i = 1; i < half - 1; i++) lf[N - i] = lf[i];
+  ifft(lf, im2);
+  const qMin = 1 / fmax, qMax = 1 / fmin;
+  let peak = -Infinity, pi = -1;
+  const qi = [];
+  for (let i = 0; i < half; i++) {
+    const q = i / sr;
+    if (q >= qMin && q <= qMax) { qi.push(i); if (lf[i] > peak) { peak = lf[i]; pi = i; } }
+  }
+  if (qi.length < 2 || pi < 0) return NaN;
+  let sx = 0, sy = 0, sxy = 0, sxx = 0;
+  for (const i of qi) { const q = i / sr; sx += q; sy += lf[i]; sxy += q * lf[i]; sxx += q * q; }
+  const m = qi.length;
+  const bs = (m * sxy - sx * sy) / (m * sxx - sx * sx);
+  const bi = (sy - bs * sx) / m;
+  return (peak - (bs * (pi / sr) + bi)) * 20 / Math.log(10);
+}
+
+/* =========================================================================
+   3) 지표 계산
+   ========================================================================= */
+const RESONANCE_BANDS = [
+  { id: "chest", label: "가슴 울림", lo: 80, hi: 500 },
+  { id: "throat", label: "목·구강 울림", lo: 500, hi: 2000 },
+  { id: "mask", label: "마스크(얼굴) 울림", lo: 2000, hi: 4000 },
+  { id: "head", label: "머리 울림", lo: 4000, hi: 8000 },
+];
+
 function analyzeSamples(samples, sr) {
   const freqs = binFreqs(sr);
-  const frames = frameSignal(samples);
+  const half = N_FFT / 2 + 1;
+  const allFrames = frameSignal(samples);
+  const gate = selectActiveFrameIdx(allFrames);
+  const frames = gate.idx.map(i => allFrames[i]);
+
+  if (frames.length < GATE.minActiveFrames) {
+    return {
+      mean_f0_hz: NaN, spectral_tilt: NaN, h1_h2_db: NaN, singers_formant_ratio: NaN,
+      cpp_db: NaN, hnr_db: NaN,
+      resonance_bands: RESONANCE_BANDS.map(b => ({ id: b.id, label: b.label, residual_db: NaN })),
+      active_ratio: gate.ratio, active_frames: frames.length, voiced_frames: 0, insufficient_signal: true,
+    };
+  }
 
   const spectra = frames.map(powerSpectrum);
-
-  // --- 평균 스펙트럼 (틸트 / 싱어스 포먼트 용) ---
-  const half = N_FFT / 2 + 1;
   const meanSpectrum = new Float64Array(half);
   for (const s of spectra) for (let i = 0; i < half; i++) meanSpectrum[i] += s[i] / spectra.length;
 
@@ -450,97 +660,46 @@ function analyzeSamples(samples, sr) {
   }
   const formantRatio = totalE > 0 ? bandE / totalE : NaN;
 
-  // 울림 위치 추정: 80~8000Hz를 4개 대역으로 나눠, 전체적인 감쇠 추세(스펙트럴 틸트)
-  // 대비 "유독 튀어나온" 정도(잔차, residual)를 계산.
-  // 단순히 각 대역의 에너지 총량만 비교하면 음높이(F0)가 낮을 때 저음 대역이
-  // 무조건 높게 나오는 왜곡이 생기기 때문에, 회귀선 대비 잔차를 사용함.
-  // ※ 실제 신체 위치를 측정하는 게 아니라, 보컬 교육에서 흔히 쓰는 표현에
-  //   빗댄 "추정치"임
-  const RESONANCE_BANDS = [
-    { id: "chest", label: "가슴 울림", lo: 80, hi: 500 },
-    { id: "throat", label: "목·구강 울림", lo: 500, hi: 2000 },
-    { id: "mask", label: "마스크(얼굴) 울림", lo: 2000, hi: 4000 },
-    { id: "head", label: "머리 울림", lo: 4000, hi: 8000 },
-  ];
+  // 울림 위치 추정: 스펙트럴 틸트 회귀선 대비 각 대역의 잔차(dB)
   const bandResidualSum = RESONANCE_BANDS.map(() => 0);
   const bandResidualCount = RESONANCE_BANDS.map(() => 0);
   for (let i = 0; i < half; i++) {
     if (freqs[i] < 80 || freqs[i] > 8000) continue;
     const predictedDb = slope * Math.log10(freqs[i]) + (sy - slope * sx) / cnt;
-    const actualDb = 10 * Math.log10(meanSpectrum[i] + 1e-12);
-    const residual = actualDb - predictedDb;
+    const residual = 10 * Math.log10(meanSpectrum[i] + 1e-12) - predictedDb;
     RESONANCE_BANDS.forEach((b, bi) => {
-      if (freqs[i] >= b.lo && freqs[i] < b.hi) {
-        bandResidualSum[bi] += residual;
-        bandResidualCount[bi] += 1;
-      }
+      if (freqs[i] >= b.lo && freqs[i] < b.hi) { bandResidualSum[bi] += residual; bandResidualCount[bi] += 1; }
     });
   }
   const resonanceBands = RESONANCE_BANDS.map((b, bi) => ({
-    id: b.id,
-    label: b.label,
+    id: b.id, label: b.label,
     residual_db: bandResidualCount[bi] > 0 ? bandResidualSum[bi] / bandResidualCount[bi] : NaN,
   }));
 
-  // 피치 & 성대 조임 정도 (H1-H2) & HNR
-  const h1h2Values = [];
-  const hnrValues = [];
-  let f0Sum = 0, f0Count = 0;
+  // 피치 & 성대 조임 정도 (H1-H2) & HNR (유성음 프레임만)
+  const h1h2Values = [], hnrValues = [], f0Values = [];
   frames.forEach((frame, idx) => {
-    const { f0, voiced, hnrDb } = estimatePitch(frame, sr);
-    if (!voiced || !f0) return;
-    f0Sum += f0; f0Count++;
-    if (hnrDb !== null && isFinite(hnrDb)) hnrValues.push(hnrDb);
-    const h2freq = 2 * f0;
-    if (h2freq >= freqs[half - 1]) return;
-    let h1Idx = 0, h2Idx = 0, h1Diff = Infinity, h2Diff = Infinity;
-    for (let i = 0; i < half; i++) {
-      const d1 = Math.abs(freqs[i] - f0);
-      const d2 = Math.abs(freqs[i] - h2freq);
-      if (d1 < h1Diff) { h1Diff = d1; h1Idx = i; }
-      if (d2 < h2Diff) { h2Diff = d2; h2Idx = i; }
+    const p = estimatePitch(frame, sr);
+    if (!p.voiced || !p.f0) return;
+    f0Values.push(p.f0);
+    if (p.hnrDb !== null && isFinite(p.hnrDb)) hnrValues.push(p.hnrDb);
+    if (2 * p.f0 < freqs[half - 1]) {
+      h1h2Values.push(peakDbInterp(spectra[idx], freqs, p.f0) - peakDbInterp(spectra[idx], freqs, 2 * p.f0));
     }
-    const h1db = 10 * Math.log10(spectra[idx][h1Idx] + 1e-12);
-    const h2db = 10 * Math.log10(spectra[idx][h2Idx] + 1e-12);
-    h1h2Values.push(h1db - h2db);
   });
-  const h1h2 = h1h2Values.length ? h1h2Values.reduce((a, b) => a + b, 0) / h1h2Values.length : NaN;
-  const meanF0 = f0Count ? f0Sum / f0Count : NaN;
-  const hnr = hnrValues.length ? hnrValues.reduce((a, b) => a + b, 0) / hnrValues.length : NaN;
+  const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+  const enoughVoiced = f0Values.length >= MIN_VOICED_FRAMES;
+  const h1h2 = enoughVoiced && h1h2Values.length ? mean(h1h2Values) : NaN;
+  const meanF0 = enoughVoiced ? mean(f0Values) : NaN;
+  const hnr = enoughVoiced && hnrValues.length ? mean(hnrValues) : NaN;
 
-  // 음색 선명도 (CPP)
-  const qMin = 1 / 800, qMax = 1 / 60;
-  const cppValues = [];
-  for (const s of spectra) {
-    const logFull = new Float64Array(N_FFT);
-    const imFull = new Float64Array(N_FFT);
-    for (let i = 0; i < half; i++) logFull[i] = Math.log(s[i] + 1e-12);
-    for (let i = 1; i < half - 1; i++) logFull[N_FFT - i] = logFull[i];
-    ifft(logFull, imFull); // 결과의 re 파트가 실켑스트럼
-    const cepstrum = logFull; // in-place 재사용
-
-    let peakVal = -Infinity, peakIdx = -1;
-    const qIdx = [];
-    for (let i = 0; i < half; i++) {
-      const q = i / sr;
-      if (q >= qMin && q <= qMax) {
-        qIdx.push(i);
-        if (cepstrum[i] > peakVal) { peakVal = cepstrum[i]; peakIdx = i; }
-      }
-    }
-    if (qIdx.length < 2 || peakIdx < 0) continue;
-
-    // 선형회귀 기준선
-    let sx2 = 0, sy2 = 0, sxy2 = 0, sxx2 = 0;
-    for (const i of qIdx) { const q = i / sr; sx2 += q; sy2 += cepstrum[i]; sxy2 += q * cepstrum[i]; sxx2 += q * q; }
-    const m = qIdx.length;
-    const bslope = (m * sxy2 - sx2 * sy2) / (m * sxx2 - sx2 * sx2);
-    const bintercept = (sy2 - bslope * sx2) / m;
-    const baseline = bslope * (peakIdx / sr) + bintercept;
-    cppValues.push(peakVal - baseline);
-  }
-  const cppRaw = cppValues.length ? cppValues.reduce((a, b) => a + b, 0) / cppValues.length : NaN;
-  const cpp = cppRaw * 20 / Math.log(10);
+  // 음색 선명도 (CPP): 4096 샘플 프레임, 같은 에너지 게이트 적용
+  const cppFramesAll = [];
+  for (let st = 0; st + CPP_N <= samples.length; st += CPP_HOP) cppFramesAll.push(samples.subarray(st, st + CPP_N));
+  const cppGate = selectActiveFrameIdx(cppFramesAll);
+  const cppVals = [];
+  for (const i of cppGate.idx) { const v = cppOfFrame(cppFramesAll[i], sr); if (isFinite(v)) cppVals.push(v); }
+  const cpp = cppVals.length >= 2 ? mean(cppVals) : NaN;
 
   return {
     mean_f0_hz: meanF0,
@@ -550,35 +709,68 @@ function analyzeSamples(samples, sr) {
     cpp_db: cpp,
     hnr_db: hnr,
     resonance_bands: resonanceBands,
+    active_ratio: gate.ratio, active_frames: frames.length, voiced_frames: f0Values.length,
+    insufficient_signal: false,
   };
 }
 
 /* =========================================================================
    4) 종합 판단 (흉성 / 두성 / 가성 / 생목소리)
    ========================================================================= */
-function computeAxes(result, baselineStats) {
-  const { h1_h2_db: h1h2, cpp_db: cpp, singers_formant_ratio, hnr_db: hnr } = result;
-  const formantRatio = singers_formant_ratio * 100;
+// ---- 판정 여유값(margin): 개발 패널의 슬라이더로 조절 가능, 폰에 저장됨 ----
+// 값은 "추정 초기값"이며 실제 목소리 테스트 기록으로 검증/보정 대상
+const DEFAULT_MARGINS = {
+  tight: 4,        // 조임: H1-H2가 기준보다 이 값(dB)만큼까지 커져도 '조임'으로 인정
+  cpp: 1.5,        // 지지: CPP가 기준보다 이 값(dB)만큼 낮아져도 허용
+  hnr: 3,          // 지지: HNR이 기준보다 이 값(dB)만큼 낮아져도 허용
+  formantDb: -1.5, // 지지: 울림감이 기준 대비 이 값(dB)까지 낮아져도 허용 (음수 = 더 낮아도 허용)
+};
+const MARGINS_KEY = "vocalAppMargins_v1";
+function loadMargins() {
+  try {
+    const raw = localStorage.getItem(MARGINS_KEY);
+    return raw ? { ...DEFAULT_MARGINS, ...JSON.parse(raw) } : { ...DEFAULT_MARGINS };
+  } catch (e) { return { ...DEFAULT_MARGINS }; }
+}
+function saveMargins() { try { localStorage.setItem(MARGINS_KEY, JSON.stringify(MARGINS)); } catch (e) {} }
+let MARGINS = loadMargins();
+const FORMANT_EPS = 1e-4; // % 단위 (0 나눗셈 방지)
 
-  if (isNaN(h1h2) || isNaN(cpp) || isNaN(formantRatio)) {
-    return { valid: false, tight: null, supported: null };
+function computeAxes(result, baselineStats, margins) {
+  margins = margins || MARGINS;
+  const h1h2 = result.h1_h2_db, cpp = result.cpp_db, hnr = result.hnr_db;
+  const ratioPct = result.singers_formant_ratio * 100;
+
+  if (isNaN(h1h2) || isNaN(cpp) || isNaN(ratioPct)) {
+    return { valid: false, tight: null, supported: null, detail: null };
   }
 
-  let tight, supported;
-  if (baselineStats) {
-    // 평소 말하는 목소리(기준값) 대비 상대적으로 판단
-    // - '조임': 평소보다 성대가 많이 풀리지 않았는지 (H1-H2가 기준보다 크게 안 높아짐)
-    // - '지지됨': 평소 말할 때보다 울림/선명도/HNR(숨소리 적은 정도)가 같거나 더 좋아졌는지
-    tight = h1h2 <= baselineStats.h1_h2_db + 4;
-    const hnrOk = isNaN(hnr) || isNaN(baselineStats.hnr_db) ? true : hnr >= baselineStats.hnr_db - 2;
-    supported = cpp >= baselineStats.cpp_db - 1 && formantRatio >= baselineStats.formant_ratio && hnrOk;
-  } else {
-    // 기준값이 없을 때(설정 전)는 기존 절대 임계값 사용
-    tight = h1h2 < 3;
+  if (!baselineStats) {
+    // 기준값이 없을 때(설정 전)는 절대 임계값 사용 (임시 대체용)
     const hnrOk = isNaN(hnr) ? true : hnr >= 8;
-    supported = cpp >= 6 && formantRatio >= 3 && hnrOk;
+    return { valid: true, tight: h1h2 < 3, supported: cpp >= 2 && ratioPct >= 0.2 && hnrOk, detail: null };
   }
-  return { valid: true, tight, supported };
+
+  // 평소 목소리(기준값) 대비 상대적으로 판단
+  // - '조임': 평소보다 성대가 많이 풀리지 않았는지 (H1-H2 증가량이 margin.tight 이하)
+  // - '지지됨': CPP / HNR / 울림감이 모두 "기준 - 여유값" 이상인지 (가장 부족한 지표가 기준)
+  const b = baselineStats;
+  const dTight = h1h2 - b.h1_h2_db;
+  const tight = dTight <= margins.tight;
+
+  const cppMargin = cpp - (b.cpp_db - margins.cpp);
+  const hnrMargin = (isNaN(hnr) || b.hnr_db == null || isNaN(b.hnr_db)) ? Infinity : hnr - (b.hnr_db - margins.hnr);
+  const formantDb = 10 * Math.log10((ratioPct + FORMANT_EPS) / (b.formant_ratio + FORMANT_EPS));
+  const formantMargin = formantDb - margins.formantDb;
+
+  const parts = { cpp: cppMargin, hnr: hnrMargin, formant: formantMargin };
+  let limiting = "cpp", supportMargin = Infinity;
+  for (const k of Object.keys(parts)) if (parts[k] < supportMargin) { supportMargin = parts[k]; limiting = k; }
+
+  return {
+    valid: true, tight, supported: supportMargin >= 0,
+    detail: { dTight, tightLimit: margins.tight, cppMargin, hnrMargin, formantDb, formantMargin, supportMargin, limiting },
+  };
 }
 
 // 목 긴장 경고: 조임/이완과 무관하게 "지지력" 축 하나로만 독립 판단.
@@ -748,48 +940,43 @@ function estimateFormantsFrame(frame, sr) {
 // (비강 역포먼트 탐지 시도는 검증 결과 신뢰도가 낮아 제거함 — 위쪽 함수 주석 참고)
 
 // 실시간 윈도우 샘플에서 포먼트/트왕/비성 추정 (여러 프레임의 중앙값 사용)
-function analyzeFormants(samples, sr) {
+// 트왕 판정 임계값 (개발 패널 슬라이더로 조절, 폰에 저장). 초기값은 추정치.
+const DEFAULT_TWANG = { minRatioPct: 4, maxGapHz: 2200 };
+const TWANG_KEY = "vocalAppTwang_v1";
+function loadTwangParams() {
+  try {
+    const raw = localStorage.getItem(TWANG_KEY);
+    return raw ? { ...DEFAULT_TWANG, ...JSON.parse(raw) } : { ...DEFAULT_TWANG };
+  } catch (e) { return { ...DEFAULT_TWANG }; }
+}
+function saveTwangParams() { try { localStorage.setItem(TWANG_KEY, JSON.stringify(TWANG)); } catch (e) {} }
+let TWANG = loadTwangParams();
+
+// 실시간 윈도우 샘플에서 포먼트/트왕 경향 추정 (여러 프레임의 중앙값 사용)
+// baseResult: 같은 윈도우에 대한 analyzeSamples 결과 (울림감 재사용, 같은 무음 게이트 적용됨)
+function analyzeFormants(samples, sr, baseResult) {
   const frameSize = 1024, hop = 512;
+  const all = [];
+  for (let start = 0; start + frameSize <= samples.length; start += hop) all.push(samples.subarray(start, start + frameSize));
+  const gate = selectActiveFrameIdx(all); // 무음/시작·끝 프레임 제외
   const f1s = [], f2s = [], f3s = [];
-  for (let start = 0; start + frameSize <= samples.length; start += hop) {
-    const frame = samples.subarray(start, start + frameSize);
-    let energy = 0;
-    for (let i = 0; i < frame.length; i++) energy += frame[i] * frame[i];
-    if (energy / frame.length < 1e-6) continue; // 무음 프레임 skip
-    const f = estimateFormantsFrame(frame, sr);
+  for (const i of gate.idx) {
+    const f = estimateFormantsFrame(all[i], sr);
     if (f && f.f1 && f.f2) { f1s.push(f.f1); f2s.push(f.f2); if (f.f3) f3s.push(f.f3); }
   }
-  const median = (arr) => {
-    if (!arr.length) return NaN;
+  const median = (arr, minN) => {
+    if (arr.length < minN) return NaN;
     const s = [...arr].sort((a, b) => a - b);
     return s[Math.floor(s.length / 2)];
   };
-  const f1 = median(f1s), f2 = median(f2s), f3 = median(f3s);
-
-  const frames = frameSignal(samples);
-  const spectra = frames.map(powerSpectrum);
-  const half = N_FFT / 2 + 1;
-  const meanSpectrum = new Float64Array(half);
-  for (const s of spectra) for (let i = 0; i < half; i++) meanSpectrum[i] += s[i] / spectra.length;
-  const freqs = binFreqs(sr);
-
-  // 트왕 경향(실험적 참고 지표 — 개인 기준값 없이 대략적인 절대 추정):
-  // 연구에서 나온 "포먼트 구조가 압축되는 경향 + 3kHz 부근 에너지"를 단순 조합한 근사치
-  let twangDetected = false;
-  if (!isNaN(f1) && !isNaN(f2)) {
-    let bandE = 0, totalE = 0;
-    for (let i = 0; i < half; i++) {
-      if (freqs[i] > 50 && freqs[i] < 8000) totalE += meanSpectrum[i];
-      if (freqs[i] >= 2500 && freqs[i] <= 3500) bandE += meanSpectrum[i];
-    }
-    const formantRatio = totalE > 0 ? (bandE / totalE) * 100 : 0;
-    const gap = f2 - f1;
-    twangDetected = formantRatio >= 4 && gap < 2200;
-  }
+  const f1 = median(f1s, 3), f2 = median(f2s, 3), f3 = median(f3s, 3);
+  const ratioPct = baseResult && isFinite(baseResult.singers_formant_ratio) ? baseResult.singers_formant_ratio * 100 : NaN;
+  const gap = f2 - f1;
+  const detected = isFinite(ratioPct) && isFinite(gap) && ratioPct >= TWANG.minRatioPct && gap < TWANG.maxGapHz;
 
   // 비강 역포먼트(찐 비성) 탐지는 검증 결과 신뢰도가 낮아 이번 버전에서는 제외함
   // (LPC는 전극점 모델이라 역포먼트를 원천적으로 표현하지 못함 — 추후 별도 기법 필요)
-  return { f1, f2, f3, twang: { detected: twangDetected } };
+  return { f1, f2, f3, gap, formant_ratio_pct: ratioPct, twang: { detected } };
 }
 
 /* =========================================================================
@@ -803,7 +990,7 @@ const COLOR_MAP = {
   gray: { bg: "#26282F", text: "#C4C4CA" },
 };
 
-const screens = ["calibrate-intro", "calib-recording", "calib-analyzing", "menu", "check"].reduce((acc, k) => {
+const screens = ["calibrate-intro", "calib-step2", "calib-recording", "calib-analyzing", "menu", "check"].reduce((acc, k) => {
   acc[k] = document.getElementById("screen-" + k); return acc;
 }, {});
 function showScreen(name) {
@@ -823,7 +1010,7 @@ function renderPassBadge(mode, axes) {
   const cfg = CHECK_MODES[mode];
   if (!axes.valid) {
     el.classList.remove("pass");
-    el.innerHTML = `<p class="pb-label">판단 대기 중</p><p class="pb-desc">유성음이 충분히 감지되지 않았어요. 조금 더 또렷하게 소리를 유지해보세요.</p>`;
+    el.innerHTML = `<p class="pb-label">판단 대기 중</p><p class="pb-desc">소리가 너무 작거나 끊겨서 분석할 수 없어요. 폰에 조금 더 가까이, 또렷하게 소리를 유지해보세요.</p>`;
     return;
   }
   const pass = axes.tight === cfg.targetTight && axes.supported === cfg.targetSupported;
@@ -945,7 +1132,9 @@ function toFormantCardData(fr) {
 /* =========================================================================
    6) 기준값(baseline) 저장/불러오기
    ========================================================================= */
-const BASELINE_KEY = "vocalAppBaseline_v1";
+// v2: 캘리브레이션 방식 변경(문장 3초 → 지속모음 5초 + 문장 10초)으로 v1 기준값과 호환되지 않아 키를 분리함
+// (v1은 문장으로 잡은 기준값이라 "아~" 지속 체크와 비교 대상이 달랐음 → 자동으로 재설정 유도)
+const BASELINE_KEY = "vocalAppBaseline_v2";
 
 function loadBaseline() {
   try {
@@ -953,13 +1142,23 @@ function loadBaseline() {
     return raw ? JSON.parse(raw) : null;
   } catch (e) { return null; }
 }
-function saveBaseline(result) {
+const pickBaselineMetrics = (r) => ({
+  h1_h2_db: r.h1_h2_db,
+  cpp_db: r.cpp_db,
+  formant_ratio: r.singers_formant_ratio * 100,
+  spectral_tilt: r.spectral_tilt,
+  hnr_db: r.hnr_db,
+  f0_hz: r.mean_f0_hz,
+  active_ratio: r.active_ratio,
+});
+// 판정에 쓰는 기준값 = 지속모음("아~") 녹음에서 추출 (체크 화면도 지속모음이라 같은 조건끼리 비교).
+// 문장 녹음은 참고용으로 같이 저장(평소 말하는 음높이 등).
+// ※ CPP는 지속모음이 연결발화보다 체계적으로 높게 나오므로(임상 문헌 다수), 문장 값을 기준으로 쓰면 편향됨.
+function saveBaseline(vowelResult, speechResult) {
   const stats = {
-    h1_h2_db: result.h1_h2_db,
-    cpp_db: result.cpp_db,
-    formant_ratio: result.singers_formant_ratio * 100,
-    spectral_tilt: result.spectral_tilt,
-    hnr_db: result.hnr_db,
+    version: 2,
+    ...pickBaselineMetrics(vowelResult),
+    speech: speechResult ? pickBaselineMetrics(speechResult) : null,
     saved_at: Date.now(),
   };
   localStorage.setItem(BASELINE_KEY, JSON.stringify(stats));
@@ -1045,61 +1244,126 @@ function handleSaveLog() {
   setTimeout(() => { if (msg.textContent === "저장됐어요!") msg.textContent = ""; }, 1500);
 }
 
-let mediaRecorder, chunks = [], calibTimerHandle;
-
-// ---- 캘리브레이션용: 3초 1회성 녹음 (MediaRecorder 사용) ----
-async function recordAudioOnce(durationSec, onTick) {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  chunks = [];
-  const mimeType = MediaRecorder.isTypeSupported("audio/mp4") ? "audio/mp4" : "";
-  mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
-  mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
-
-  const stopped = new Promise((resolve) => {
-    mediaRecorder.onstop = () => { stream.getTracks().forEach(t => t.stop()); resolve(); };
+// ---- 마이크 입력 (캘리브레이션/실시간 체크 공용: 같은 신호 경로를 써야 기준값과 체크값이 비교 가능) ----
+// - 원시 PCM을 직접 받음 (예전 캘리브레이션은 MediaRecorder → 손실 압축(AAC) → 디코딩이라 체크 때와 신호 경로가 달랐음)
+// - 에코제거/노이즈억제/자동음량조절을 끄도록 요청: 노이즈 억제가 숨소리·지속음을 깎아 HNR/CPP를 왜곡할 수 있음
+//   (iOS가 실제로 적용했는지는 settings로 확인해서 개발 패널에 표시)
+async function openMic(onChunk, onReady) {
+  const stream = await navigator.mediaDevices.getUserMedia({
+    audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1 },
   });
-  mediaRecorder.start();
-
-  let elapsed = 0;
-  onTick(elapsed);
-  calibTimerHandle = setInterval(() => {
-    elapsed += 0.1;
-    onTick(elapsed);
-    if (elapsed >= durationSec) {
-      clearInterval(calibTimerHandle);
-      mediaRecorder.stop();
-    }
-  }, 100);
-
-  await stopped;
-
-  const blob = new Blob(chunks, { type: chunks[0]?.type || "audio/mp4" });
-  const arrayBuffer = await blob.arrayBuffer();
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-  await audioCtx.close();
-  return { samples: audioBuffer.getChannelData(0), sr: audioBuffer.sampleRate };
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if (ctx.state === "suspended") { try { await ctx.resume(); } catch (e) {} }
+  if (onReady) onReady(ctx.sampleRate); // 버퍼를 먼저 준비한 뒤 입력 연결
+  const src = ctx.createMediaStreamSource(stream);
+  const proc = ctx.createScriptProcessor(LIVE_PROCESSOR_BUFSIZE, 1, 1);
+  const mute = ctx.createGain();
+  mute.gain.value = 0; // 마이크 소리가 스피커로 되먹임되지 않도록 무음 처리
+  proc.onaudioprocess = (e) => onChunk(e.inputBuffer.getChannelData(0));
+  src.connect(proc); proc.connect(mute); mute.connect(ctx.destination);
+  const track = stream.getAudioTracks()[0];
+  const settings = track && track.getSettings ? track.getSettings() : {};
+  return {
+    sr: ctx.sampleRate,
+    settings,
+    stop() {
+      try { proc.disconnect(); proc.onaudioprocess = null; src.disconnect(); mute.disconnect(); } catch (e) {}
+      stream.getTracks().forEach(t => t.stop());
+      try { ctx.close(); } catch (e) {}
+    },
+  };
 }
 
-async function startCalibration() {
-  document.getElementById("calib-error").style.display = "none";
+// 지정한 시간 동안 원시 PCM을 모아서 반환 (캘리브레이션용)
+async function recordPcm(durationSec, onTick) {
+  const chunks = [];
+  let total = 0;
+  const mic = await openMic((c) => { chunks.push(new Float32Array(c)); total += c.length; });
+  const startedAt = Date.now();
   try {
-    showScreen("calib-recording");
-    const { samples, sr } = await recordAudioOnce(3.0, (t) => {
-      document.getElementById("calib-timer").textContent = t.toFixed(1) + "초";
+    await new Promise((resolve, reject) => {
+      const h = setInterval(() => {
+        const t = total / mic.sr;
+        onTick(Math.min(t, durationSec));
+        if (t >= durationSec) { clearInterval(h); resolve(); }
+        else if (Date.now() - startedAt > durationSec * 1000 + 4000) { clearInterval(h); reject(new Error("마이크 입력이 들어오지 않아요")); }
+      }, 100);
     });
-    showScreen("calib-analyzing");
-    await new Promise(res => setTimeout(res, 300));
-    const result = analyzeSamples(samples, sr);
-    saveBaseline(result);
-    showScreen("menu");
+  } finally { mic.stop(); }
+  const samples = new Float32Array(total);
+  let off = 0;
+  for (const c of chunks) { samples.set(c, off); off += c.length; }
+  return { samples, sr: mic.sr, mic: mic.settings };
+}
+
+// ---- 캘리브레이션 (2단계) ----
+// 1단계: 평소 말할 때의 높이·힘으로 "아~" 5초 (임상 가이드라인: 편한 높이/크기의 지속모음 3~5초) → 판정 기준값
+// 2단계: 문장 읽기 10초 → 평소 말투 참고값(음높이 등), 건너뛰기 가능
+const CALIB_VOWEL_SEC = 5, CALIB_SPEECH_SEC = 10;
+let calibVowelResult = null;
+
+function calibResultUsable(r) {
+  return r && !r.insufficient_signal && isFinite(r.h1_h2_db) && isFinite(r.cpp_db) && isFinite(r.hnr_db) && isFinite(r.singers_formant_ratio);
+}
+
+async function runCalibRecording(label, promptText, sec) {
+  document.getElementById("calib-recording-label").textContent = label;
+  document.getElementById("calib-prompt").textContent = promptText;
+  showScreen("calib-recording");
+  const rec = await recordPcm(sec, (t) => {
+    document.getElementById("calib-timer").textContent = `${t.toFixed(1)} / ${sec}초`;
+  });
+  showScreen("calib-analyzing");
+  await new Promise(res => setTimeout(res, 200));
+  return { result: analyzeSamples(rec.samples, rec.sr), mic: rec.mic, sr: rec.sr };
+}
+
+async function startCalibration() { // 1단계 버튼
+  const errEl = document.getElementById("calib-error");
+  errEl.style.display = "none";
+  try {
+    const { result } = await runCalibRecording("평소 목소리로 \"아~\" 하는 중", "아~~~~~~", CALIB_VOWEL_SEC);
+    if (!calibResultUsable(result)) {
+      showScreen("calibrate-intro");
+      errEl.textContent = "소리가 충분히 감지되지 않았어요. 조용한 곳에서 폰을 조금 더 가까이 두고 다시 해주세요.";
+      errEl.style.display = "block";
+      return;
+    }
+    calibVowelResult = result;
+    showScreen("calib-step2");
   } catch (err) {
     console.error(err);
     showScreen("calibrate-intro");
-    const el = document.getElementById("calib-error");
-    el.textContent = "마이크 권한이 필요해요. 설정 > Safari > 마이크에서 허용해주세요.";
-    el.style.display = "block";
+    errEl.textContent = "마이크 권한이 필요해요. 설정 > Safari > 마이크에서 허용해주세요.";
+    errEl.style.display = "block";
   }
+}
+
+async function startCalibStep2() { // 2단계 버튼
+  const errEl = document.getElementById("calib2-error");
+  errEl.style.display = "none";
+  try {
+    const { result } = await runCalibRecording("문장 읽는 중", "안녕하세요, 오늘 하루도 즐겁게 보내세요. 저는 주말마다 가까운 공원에서 천천히 산책을 해요. 맑은 하늘을 바라보면 기분이 좋아져요.", CALIB_SPEECH_SEC);
+    if (!calibResultUsable(result)) {
+      showScreen("calib-step2");
+      errEl.textContent = "문장 소리가 충분히 감지되지 않았어요. 다시 해보거나 건너뛰기를 눌러주세요.";
+      errEl.style.display = "block";
+      return;
+    }
+    saveBaseline(calibVowelResult, result);
+    showScreen("menu");
+  } catch (err) {
+    console.error(err);
+    showScreen("calib-step2");
+    errEl.textContent = "마이크 입력에 문제가 있어요. 다시 시도해주세요.";
+    errEl.style.display = "block";
+  }
+}
+
+function skipCalibStep2() {
+  if (!calibVowelResult) { showScreen("calibrate-intro"); return; }
+  saveBaseline(calibVowelResult, null);
+  showScreen("menu");
 }
 
 // =========================================================================
@@ -1112,11 +1376,7 @@ const LIVE_PROCESSOR_BUFSIZE = 4096;
 
 const live = {
   active: false,
-  audioCtx: null,
-  stream: null,
-  sourceNode: null,
-  processorNode: null,
-  silentGain: null,
+  mic: null,
   sr: 0,
   circularBuf: null,
   writeIdx: 0,
@@ -1128,6 +1388,7 @@ const live = {
 
 function liveWriteChunk(chunk) {
   const buf = live.circularBuf;
+  if (!buf) return;
   for (let i = 0; i < chunk.length; i++) {
     buf[live.writeIdx] = chunk[i];
     live.writeIdx = (live.writeIdx + 1) % buf.length;
@@ -1161,8 +1422,12 @@ async function enterCheckMode(mode) {
     `<strong>"${cfg.vowel}~"</strong> 하고 편하게 소리를 유지해보세요`;
   document.getElementById("general-detail").style.display = cfg.isFormant ? "none" : "block";
   document.getElementById("formant-detail").style.display = cfg.isFormant ? "block" : "none";
+  document.getElementById("dev-general").style.display = cfg.isFormant ? "none" : "block";
+  document.getElementById("dev-twang").style.display = cfg.isFormant ? "block" : "none";
   resetCheckScreen();
+  resetDevState();
   showScreen("check");
+  renderDevPanel();
   await startLiveListening(); // 별도 시작 버튼 없이 화면 진입 즉시 듣기 시작
 }
 
@@ -1178,28 +1443,479 @@ document.getElementById("menu-recalibrate-link").addEventListener("click", () =>
   showScreen("calibrate-intro");
 });
 
+// =========================================================================
+// 개발 패널: 실시간 그래프 / 판정 여유값 슬라이더 / 현재값 표 / 일시정지
+// (개발 버전 전용 — 배포 버전에서는 인터페이스가 바뀔 예정)
+// =========================================================================
+const DEV_HISTORY = 30; // 약 24초 (30 × 0.8초)
+let devHist = [];       // 일반 모드 기록 {tick, h1h2, cpp, hnr, ratioPct, f0}
+let devTwangHist = [];  // 트왕 모드 기록 {tick, f1, f2, gap, ratioPct, f0}
+let devTick = 0;
+let devFrozen = false;
+let lastResult = null, lastFormantResult = null, lastBaseline = null, micInfo = null;
+
+const fmtN = (v, d = 1) => (v === null || v === undefined || !isFinite(v)) ? "—" : Number(v).toFixed(d);
+
+function setupCanvas(canvas, cssH) {
+  const w = canvas.clientWidth;
+  if (!w) return null;
+  const dpr = window.devicePixelRatio || 1;
+  const pw = Math.round(w * dpr), ph = Math.round(cssH * dpr);
+  if (canvas.width !== pw || canvas.height !== ph) { canvas.width = pw; canvas.height = ph; canvas.style.height = cssH + "px"; }
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, cssH);
+  return { ctx, w, h: cssH };
+}
+
+// 기록 한 건 → 현재 여유값 기준 파생 판정 (슬라이더를 움직이면 지난 기록도 같이 다시 판정됨)
+function deriveGeneral(h) {
+  const axes = computeAxes({ h1_h2_db: h.h1h2, cpp_db: h.cpp, hnr_db: h.hnr, singers_formant_ratio: h.ratioPct / 100 }, lastBaseline);
+  const cfg = CHECK_MODES[currentMode];
+  const pass = axes.valid && axes.tight === cfg.targetTight && axes.supported === cfg.targetSupported;
+  return { axes, pass, tension: isThroatTense(axes) };
+}
+function twangDetectedFor(h) {
+  return isFinite(h.ratioPct) && isFinite(h.gap) && h.ratioPct >= TWANG.minRatioPct && h.gap < TWANG.maxGapHz;
+}
+
+// ---------- ① 조임 × 지지 평면 ----------
+const SC = { xMin: -8, xMax: 14, yMin: -8, yMax: 8 };
+function drawScatter() {
+  const c = setupCanvas(document.getElementById("scatter-canvas"), 270);
+  if (!c) return;
+  const { ctx, w, h } = c;
+  const padL = 34, padR = 8, padT = 10, padB = 28;
+  const pw = w - padL - padR, ph = h - padT - padB;
+  const X = (v) => padL + (Math.min(SC.xMax, Math.max(SC.xMin, v)) - SC.xMin) / (SC.xMax - SC.xMin) * pw;
+  const Y = (v) => padT + (1 - (Math.min(SC.yMax, Math.max(SC.yMin, v)) - SC.yMin) / (SC.yMax - SC.yMin)) * ph;
+  const cfg = CHECK_MODES[currentMode];
+  const xT = MARGINS.tight;
+
+  const quads = [
+    { tight: true, sup: true, x0: SC.xMin, x1: xT, y0: 0, y1: SC.yMax, rgb: "255,177,153", label: "흉성" },
+    { tight: false, sup: true, x0: xT, x1: SC.xMax, y0: 0, y1: SC.yMax, rgb: "127,224,196", label: "두성" },
+    { tight: true, sup: false, x0: SC.xMin, x1: xT, y0: SC.yMin, y1: 0, rgb: "242,192,120", label: "조임·지지↓" },
+    { tight: false, sup: false, x0: xT, x1: SC.xMax, y0: SC.yMin, y1: 0, rgb: "143,194,255", label: "가성" },
+  ];
+  for (const q of quads) {
+    const isTarget = cfg.targetTight === q.tight && cfg.targetSupported === q.sup;
+    const x0 = X(q.x0), x1 = X(q.x1), y0 = Y(q.y1), y1 = Y(q.y0);
+    ctx.fillStyle = `rgba(${q.rgb},${isTarget ? 0.30 : 0.08})`;
+    ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
+    ctx.fillStyle = `rgba(${q.rgb},${isTarget ? 1 : 0.6})`;
+    ctx.font = (isTarget ? "bold " : "") + "11px -apple-system, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(q.label + (isTarget ? " ★목표" : ""), (x0 + x1) / 2, (y0 + y1) / 2);
+  }
+  // 목 긴장 경고 구간(지지 여유 < 0) : 아래쪽 붉은 띠
+  ctx.fillStyle = "rgba(255,90,90,0.07)";
+  ctx.fillRect(padL, Y(0), pw, Y(SC.yMin) - Y(0));
+  ctx.fillStyle = "rgba(255,138,128,0.85)";
+  ctx.font = "10px -apple-system, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("▼ 목 긴장 경고 구간", padL + 4, Y(SC.yMin) - 4);
+
+  // 한계선
+  ctx.setLineDash([4, 3]);
+  ctx.strokeStyle = "rgba(255,200,120,0.9)"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(X(xT), padT); ctx.lineTo(X(xT), padT + ph); ctx.stroke();
+  ctx.strokeStyle = "rgba(255,255,255,0.45)";
+  ctx.beginPath(); ctx.moveTo(padL, Y(0)); ctx.lineTo(padL + pw, Y(0)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 축/눈금
+  ctx.strokeStyle = "#3A3D45"; ctx.strokeRect(padL, padT, pw, ph);
+  ctx.fillStyle = "#8A8D96"; ctx.font = "10px -apple-system, sans-serif"; ctx.textAlign = "center";
+  [-5, 0, 5, 10].forEach(v => ctx.fillText(v, X(v), padT + ph + 12));
+  ctx.fillText("조임 ◀  H1-H2 증가량 (dB)  ▶ 이완", padL + pw / 2, padT + ph + 24);
+  ctx.textAlign = "right";
+  [-6, -3, 0, 3, 6].forEach(v => ctx.fillText(v, padL - 4, Y(v) + 3));
+  ctx.save(); ctx.translate(10, padT + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = "center";
+  ctx.fillText("지지 여유 (dB)", 0, 0); ctx.restore();
+  ctx.textAlign = "left"; ctx.fillStyle = "rgba(255,200,120,0.95)";
+  ctx.fillText(`한계 +${fmtN(xT, 1)}`, Math.min(X(xT) + 3, padL + pw - 52), padT + 11);
+
+  // 점 + 궤적
+  const pts = [];
+  for (const h of devHist.slice(-12)) {
+    const d = deriveGeneral(h);
+    if (d.axes.valid && d.axes.detail) pts.push({ x: d.axes.detail.dTight, y: isFinite(d.axes.detail.supportMargin) ? d.axes.detail.supportMargin : SC.yMax, pass: d.pass, tension: d.tension });
+  }
+  pts.forEach((p, i) => {
+    const isLast = i === pts.length - 1;
+    const a = 0.15 + 0.85 * (i + 1) / pts.length;
+    const clamped = p.x < SC.xMin || p.x > SC.xMax || p.y < SC.yMin || p.y > SC.yMax;
+    ctx.beginPath();
+    ctx.arc(X(p.x), Y(p.y), isLast ? 6 : 3.5, 0, Math.PI * 2);
+    if (clamped) { ctx.strokeStyle = `rgba(237,237,239,${a})`; ctx.lineWidth = 1.5; ctx.stroke(); }
+    else { ctx.fillStyle = (p.pass ? `rgba(111,224,160,${a})` : `rgba(237,237,239,${a})`); ctx.fill(); }
+    if (isLast) { ctx.lineWidth = 2; ctx.strokeStyle = p.tension ? "#FF6B6B" : "#FFFFFF"; ctx.stroke(); }
+  });
+  if (!pts.length) {
+    ctx.fillStyle = "#6E6E76"; ctx.textAlign = "center"; ctx.font = "12px -apple-system, sans-serif";
+    ctx.fillText("소리를 내면 점이 나타나요", padL + pw / 2, padT + ph / 2 + 40);
+  }
+}
+
+// ---------- 공용 추이(스트립) 차트 ----------
+function drawStripChart(canvasId, rows, entries, markers) {
+  const rowH = 58;
+  const c = setupCanvas(document.getElementById(canvasId), rows.length * rowH + 6);
+  if (!c) return;
+  const { ctx, w } = c;
+  const padL = 8, padR = 8, pw = w - padL - padR;
+  const lastTick = entries.length ? entries[entries.length - 1].tick : 0;
+  const firstTick = lastTick - (DEV_HISTORY - 1);
+  const xOf = (t) => padL + (t - firstTick) / (DEV_HISTORY - 1) * pw;
+
+  rows.forEach((row, ri) => {
+    const top = 3 + ri * rowH, innerTop = top + 15, innerH = rowH - 20;
+    ctx.fillStyle = "#16181E"; ctx.fillRect(padL, innerTop, pw, innerH);
+    let lo = Infinity, hi = -Infinity;
+    for (const v of row.vals) if (isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    for (const v of [row.base, row.limit]) if (v !== null && v !== undefined && isFinite(v)) { lo = Math.min(lo, v); hi = Math.max(hi, v); }
+    if (!isFinite(lo)) { lo = 0; hi = 1; }
+    if (hi - lo < 1e-6) hi = lo + 1;
+    const padv = (hi - lo) * 0.15; lo -= padv; hi += padv;
+    const Y = (v) => innerTop + (1 - (v - lo) / (hi - lo)) * innerH;
+
+    ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+    if (row.base !== null && row.base !== undefined && isFinite(row.base)) {
+      ctx.strokeStyle = "rgba(200,200,210,0.55)";
+      ctx.beginPath(); ctx.moveTo(padL, Y(row.base)); ctx.lineTo(padL + pw, Y(row.base)); ctx.stroke();
+    }
+    if (row.limit !== null && row.limit !== undefined && isFinite(row.limit)) {
+      ctx.strokeStyle = "rgba(255,200,120,0.95)";
+      ctx.beginPath(); ctx.moveTo(padL, Y(row.limit)); ctx.lineTo(padL + pw, Y(row.limit)); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // 선 (NaN 구간은 끊음)
+    ctx.strokeStyle = "#6FA8FF"; ctx.lineWidth = 1.6; ctx.beginPath();
+    let pen = false;
+    entries.forEach((e, i) => {
+      const v = row.vals[i];
+      if (!isFinite(v)) { pen = false; return; }
+      const x = xOf(e.tick), y = Y(v);
+      if (!pen) { ctx.moveTo(x, y); pen = true; } else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    entries.forEach((e, i) => {
+      const v = row.vals[i];
+      if (!isFinite(v)) return;
+      ctx.beginPath(); ctx.arc(xOf(e.tick), Y(v), i === entries.length - 1 ? 3.2 : 1.8, 0, Math.PI * 2);
+      ctx.fillStyle = i === entries.length - 1 ? "#FFFFFF" : "#6FA8FF"; ctx.fill();
+    });
+
+    ctx.font = "11px -apple-system, sans-serif";
+    ctx.fillStyle = "#C4C4CA"; ctx.textAlign = "left";
+    ctx.fillText(row.label, padL, top + 11);
+    const curr = row.vals.length ? row.vals[row.vals.length - 1] : NaN;
+    ctx.textAlign = "right"; ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(fmtN(curr, row.digits === undefined ? 1 : row.digits) + (row.unit || ""), padL + pw, top + 11);
+  });
+
+  // 판정 전환 마커 (모든 행을 가로질러 세로선)
+  const totalH = rows.length * rowH + 6;
+  for (const m of markers) {
+    if (m.tick < firstTick) continue;
+    const x = xOf(m.tick);
+    ctx.strokeStyle = m.color; ctx.lineWidth = 1.5; ctx.setLineDash(m.dash || []);
+    ctx.beginPath(); ctx.moveTo(x, 2); ctx.lineTo(x, totalH - 2); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+}
+
+function buildMarkers(entries, passFlags, tenseFlags) {
+  const ms = [];
+  for (let i = 1; i < entries.length; i++) {
+    if (passFlags[i] !== null && passFlags[i - 1] !== null && passFlags[i] !== passFlags[i - 1])
+      ms.push({ tick: entries[i].tick, color: passFlags[i] ? "#6FE0A0" : "#8A8D96" });
+    if (tenseFlags && tenseFlags[i] !== null && tenseFlags[i - 1] !== null && tenseFlags[i] !== tenseFlags[i - 1])
+      ms.push({ tick: entries[i].tick, color: tenseFlags[i] ? "#FF6B6B" : "#8A5A5A", dash: [3, 3] });
+  }
+  return ms;
+}
+
+function drawGeneralStrips() {
+  const b = lastBaseline || {};
+  const ds = devHist.map(deriveGeneral);
+  const rows = [
+    { label: "H1-H2 (dB) · 낮을수록 조임", unit: "", vals: devHist.map(h => h.h1h2), base: b.h1_h2_db, limit: b.h1_h2_db !== undefined ? b.h1_h2_db + MARGINS.tight : null, digits: 1 },
+    { label: "CPP 선명도 (dB)", unit: "", vals: devHist.map(h => h.cpp), base: b.cpp_db, limit: b.cpp_db !== undefined ? b.cpp_db - MARGINS.cpp : null, digits: 1 },
+    { label: "HNR 숨소리 적은 정도 (dB)", unit: "", vals: devHist.map(h => h.hnr), base: b.hnr_db, limit: b.hnr_db !== undefined ? b.hnr_db - MARGINS.hnr : null, digits: 1 },
+    { label: "울림감 (기준 대비 dB)", unit: "", vals: ds.map(d => d.axes.detail ? d.axes.detail.formantDb : NaN), base: 0, limit: MARGINS.formantDb, digits: 1 },
+    { label: "F0 음높이 (Hz)", unit: "", vals: devHist.map(h => h.f0), base: b.f0_hz, limit: null, digits: 0 },
+  ];
+  const passFlags = ds.map(d => d.axes.valid ? d.pass : null);
+  const tenseFlags = ds.map(d => d.axes.valid ? d.tension : null);
+  drawStripChart("strips-canvas", rows, devHist, buildMarkers(devHist, passFlags, tenseFlags));
+}
+
+// ---------- 트왕: 모음 공간 + 추이 ----------
+const VS = { xMin: 500, xMax: 3000, yMin: 150, yMax: 1000 };
+function drawVowelSpace() {
+  const c = setupCanvas(document.getElementById("vowel-canvas"), 250);
+  if (!c) return;
+  const { ctx, w, h } = c;
+  const padL = 40, padR = 8, padT = 10, padB = 28;
+  const pw = w - padL - padR, ph = h - padT - padB;
+  const cl = (v, a, b) => Math.min(b, Math.max(a, v));
+  const X = (v) => padL + (cl(v, VS.xMin, VS.xMax) - VS.xMin) / (VS.xMax - VS.xMin) * pw;
+  const Y = (v) => padT + (1 - (cl(v, VS.yMin, VS.yMax) - VS.yMin) / (VS.yMax - VS.yMin)) * ph;
+
+  // 간격(F2-F1) < 한계 인 영역: x < y + maxGap
+  const xb = (y) => cl(y + TWANG.maxGapHz, VS.xMin, VS.xMax);
+  ctx.fillStyle = "rgba(111,224,160,0.14)";
+  ctx.beginPath();
+  ctx.moveTo(X(VS.xMin), Y(VS.yMin)); ctx.lineTo(X(xb(VS.yMin)), Y(VS.yMin));
+  ctx.lineTo(X(xb(VS.yMax)), Y(VS.yMax)); ctx.lineTo(X(VS.xMin), Y(VS.yMax)); ctx.closePath(); ctx.fill();
+  ctx.setLineDash([4, 3]); ctx.strokeStyle = "rgba(255,200,120,0.95)"; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(X(xb(VS.yMin)), Y(VS.yMin)); ctx.lineTo(X(xb(VS.yMax)), Y(VS.yMax)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.strokeStyle = "#3A3D45"; ctx.strokeRect(padL, padT, pw, ph);
+  ctx.fillStyle = "#8A8D96"; ctx.font = "10px -apple-system, sans-serif"; ctx.textAlign = "center";
+  [1000, 1500, 2000, 2500].forEach(v => ctx.fillText(v, X(v), padT + ph + 12));
+  ctx.fillText("F2 (Hz)", padL + pw / 2, padT + ph + 24);
+  ctx.textAlign = "right";
+  [200, 400, 600, 800].forEach(v => ctx.fillText(v, padL - 4, Y(v) + 3));
+  ctx.save(); ctx.translate(11, padT + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = "center";
+  ctx.fillText("F1 (Hz)", 0, 0); ctx.restore();
+  ctx.fillStyle = "rgba(111,224,160,0.9)"; ctx.textAlign = "left";
+  ctx.fillText("포먼트 압축 구간", padL + 6, padT + 13);
+
+  const pts = devTwangHist.slice(-12).filter(h => isFinite(h.f1) && isFinite(h.f2));
+  pts.forEach((p, i) => {
+    const isLast = i === pts.length - 1;
+    const a = 0.15 + 0.85 * (i + 1) / pts.length;
+    const ratioOk = isFinite(p.ratioPct) && p.ratioPct >= TWANG.minRatioPct;
+    ctx.beginPath(); ctx.arc(X(p.f2), Y(p.f1), isLast ? 6 : 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = ratioOk ? `rgba(111,224,160,${a})` : `rgba(255,138,128,${a})`; ctx.fill();
+    if (isLast) { ctx.lineWidth = 2; ctx.strokeStyle = "#FFFFFF"; ctx.stroke(); }
+  });
+  if (!pts.length) {
+    ctx.fillStyle = "#6E6E76"; ctx.textAlign = "center"; ctx.font = "12px -apple-system, sans-serif";
+    ctx.fillText("\"이~\" 소리를 내면 점이 나타나요", padL + pw / 2, padT + ph / 2);
+  }
+}
+
+function drawTwangStrips() {
+  const flags = devTwangHist.map(h => (isFinite(h.f1) && isFinite(h.f2)) ? twangDetectedFor(h) : null);
+  const rows = [
+    { label: "F1 (Hz)", vals: devTwangHist.map(h => h.f1), base: null, limit: null, digits: 0 },
+    { label: "F2 (Hz)", vals: devTwangHist.map(h => h.f2), base: null, limit: null, digits: 0 },
+    { label: "F2−F1 간격 (Hz) · 한계보다 좁아야 함", vals: devTwangHist.map(h => h.gap), base: null, limit: TWANG.maxGapHz, digits: 0 },
+    { label: "울림감 (%) · 한계 이상이어야 함", vals: devTwangHist.map(h => h.ratioPct), base: null, limit: TWANG.minRatioPct, digits: 2 },
+  ];
+  drawStripChart("twang-strips-canvas", rows, devTwangHist, buildMarkers(devTwangHist, flags, null));
+}
+
+// ---------- ③ 슬라이더 ----------
+const MARGIN_DEFS = [
+  { key: "tight", label: "조임 허용\n(H1-H2 증가 한계, dB)", min: -4, max: 12, step: 0.5 },
+  { key: "cpp", label: "지지: CPP\n허용 하락 (dB)", min: -3, max: 5, step: 0.25 },
+  { key: "hnr", label: "지지: HNR\n허용 하락 (dB)", min: -5, max: 8, step: 0.5 },
+  { key: "formantDb", label: "지지: 울림감\n기준 대비 (dB)", min: -8, max: 3, step: 0.25 },
+];
+const TWANG_DEFS = [
+  { key: "minRatioPct", label: "울림감 최소값 (%)", min: 0, max: 15, step: 0.25 },
+  { key: "maxGapHz", label: "F2−F1 최대 간격 (Hz)", min: 800, max: 3500, step: 50 },
+];
+function buildSliders(containerId, defs, store, defaults, onSave) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = "";
+  defs.forEach(d => {
+    const row = document.createElement("div");
+    row.className = "slider-row";
+    row.innerHTML = `<label>${d.label.replace("\n", "<br>")}</label><input type="range" min="${d.min}" max="${d.max}" step="${d.step}" value="${store()[d.key]}"><span class="sv">${store()[d.key]}</span>`;
+    const input = row.querySelector("input"), sv = row.querySelector(".sv");
+    input.addEventListener("input", () => {
+      store()[d.key] = parseFloat(input.value);
+      sv.textContent = input.value;
+      onSave();
+      refreshAfterParamChange();
+    });
+    el.appendChild(row);
+  });
+  const reset = document.createElement("button");
+  reset.className = "dev-reset"; reset.type = "button"; reset.textContent = "기본값으로 되돌리기";
+  reset.addEventListener("click", () => {
+    Object.assign(store(), defaults);
+    onSave();
+    buildSliders(containerId, defs, store, defaults, onSave);
+    refreshAfterParamChange();
+  });
+  el.appendChild(reset);
+}
+
+// ---------- ④ 표 ----------
+function badgeCell(ok) { return `<span class="${ok ? "ok" : "bad"}">${ok ? "✓" : "✗"}</span>`; }
+function renderDevTable() {
+  const el = document.getElementById("dev-table");
+  const r = lastResult, b = lastBaseline;
+  if (!r) { el.innerHTML = `<p class="dev-note">소리를 내면 표시돼요</p>`; return; }
+  const sig = `유효 프레임 ${r.active_frames}개 (${fmtN(r.active_ratio * 100, 0)}%) · 유성음 ${r.voiced_frames}개`;
+  const ax = computeAxes(r, b);
+  if (!ax.valid || !ax.detail) { el.innerHTML = `<p class="dev-note">판단 불가 — ${sig}</p>`; return; }
+  const d = ax.detail, ratioPct = r.singers_formant_ratio * 100;
+  const cfg = CHECK_MODES[currentMode];
+  const pass = ax.tight === cfg.targetTight && ax.supported === cfg.targetSupported;
+  el.innerHTML = `
+    <table class="dev-table">
+      <tr><th>지표</th><th>현재</th><th>기준</th><th>한계</th><th>판정</th></tr>
+      <tr><td>조임 H1-H2 (dB)</td><td>${fmtN(r.h1_h2_db)}</td><td>${fmtN(b.h1_h2_db)}</td><td>≤ ${fmtN(b.h1_h2_db + MARGINS.tight)}</td><td>${badgeCell(ax.tight)}</td></tr>
+      <tr><td>CPP (dB)</td><td>${fmtN(r.cpp_db)}</td><td>${fmtN(b.cpp_db)}</td><td>≥ ${fmtN(b.cpp_db - MARGINS.cpp)}</td><td>${badgeCell(d.cppMargin >= 0)}</td></tr>
+      <tr><td>HNR (dB)</td><td>${fmtN(r.hnr_db)}</td><td>${fmtN(b.hnr_db)}</td><td>≥ ${fmtN(b.hnr_db - MARGINS.hnr)}</td><td>${badgeCell(d.hnrMargin >= 0)}</td></tr>
+      <tr><td>울림감 (%)</td><td>${fmtN(ratioPct, 2)}</td><td>${fmtN(b.formant_ratio, 2)}</td><td>Δ ≥ ${fmtN(MARGINS.formantDb)}dB</td><td>${badgeCell(d.formantMargin >= 0)}</td></tr>
+    </table>
+    <p class="dev-note">지지 = CPP·HNR·울림감 모두 충족 → <b>${ax.supported ? "지지됨" : "지지 부족"}</b> (가장 부족한 지표: ${({ cpp: "CPP", hnr: "HNR", formant: "울림감" })[d.limiting]}, 여유 ${fmtN(d.supportMargin, 2)}dB)<br>
+    조임 Δ ${fmtN(d.dTight, 2)}dB (한계 +${fmtN(d.tightLimit, 1)}) → <b>${ax.tight ? "조임" : "이완"}</b> · 목표(${cfg.title}) 통과: <b>${pass ? "예" : "아니오"}</b> · 목 긴장: <b>${isThroatTense(ax) ? "감지" : "없음"}</b><br>
+    ${sig} · 두께감(틸트) ${fmtN(r.spectral_tilt)}</p>`;
+}
+function renderDevTwangTable() {
+  const el = document.getElementById("dev-twang-table");
+  const fr = lastFormantResult;
+  if (!fr) { el.innerHTML = `<p class="dev-note">소리를 내면 표시돼요</p>`; return; }
+  const gapOk = isFinite(fr.gap) && fr.gap < TWANG.maxGapHz;
+  const ratioOk = isFinite(fr.formant_ratio_pct) && fr.formant_ratio_pct >= TWANG.minRatioPct;
+  const r = lastResult;
+  el.innerHTML = `
+    <table class="dev-table">
+      <tr><th>지표</th><th>현재</th><th>한계</th><th>판정</th></tr>
+      <tr><td>F1 (Hz)</td><td>${fmtN(fr.f1, 0)}</td><td>—</td><td>—</td></tr>
+      <tr><td>F2 (Hz)</td><td>${fmtN(fr.f2, 0)}</td><td>—</td><td>—</td></tr>
+      <tr><td>F2−F1 간격 (Hz)</td><td>${fmtN(fr.gap, 0)}</td><td>&lt; ${TWANG.maxGapHz}</td><td>${badgeCell(gapOk)}</td></tr>
+      <tr><td>울림감 (%)</td><td>${fmtN(fr.formant_ratio_pct, 2)}</td><td>≥ ${TWANG.minRatioPct}</td><td>${badgeCell(ratioOk)}</td></tr>
+    </table>
+    <p class="dev-note">트왕 경향: <b>${fr.twang.detected ? "감지" : "미감지"}</b> (간격·울림감 둘 다 충족해야 감지)${r ? ` · 유효 프레임 ${r.active_frames}개 (${fmtN(r.active_ratio * 100, 0)}%)` : ""}</p>`;
+}
+
+// ---------- 패널 전체 갱신 ----------
+function renderDevInfoLines() {
+  const b = lastBaseline;
+  const bl = document.getElementById("dev-baseline-info");
+  bl.textContent = b
+    ? `기준값(지속모음 "아~"): H1-H2 ${fmtN(b.h1_h2_db)} · CPP ${fmtN(b.cpp_db)} · HNR ${fmtN(b.hnr_db)} · 울림감 ${fmtN(b.formant_ratio, 2)}% · F0 ${fmtN(b.f0_hz, 0)}Hz` + (b.speech ? ` | 평소 말투 F0 ${fmtN(b.speech.f0_hz, 0)}Hz` : "")
+    : "기준값 없음 (임시 절대 임계값 사용 중)";
+  const mi = document.getElementById("dev-mic-info");
+  if (micInfo) {
+    const f = (v) => v === undefined ? "알 수 없음" : (v ? "켜짐" : "꺼짐");
+    mi.textContent = `마이크: ${micInfo.sampleRate}Hz · 에코제거 ${f(micInfo.echoCancellation)} · 노이즈억제 ${f(micInfo.noiseSuppression)} · 자동음량 ${f(micInfo.autoGainControl)} (iOS가 실제 적용한 값)`;
+  } else mi.textContent = "";
+}
+function renderDevPanel() {
+  const isTwang = !!(CHECK_MODES[currentMode] && CHECK_MODES[currentMode].isFormant);
+  renderDevInfoLines();
+  if (isTwang) { drawVowelSpace(); drawTwangStrips(); renderDevTwangTable(); }
+  else { drawScatter(); drawGeneralStrips(); renderDevTable(); }
+}
+
+function buildSnapshot() {
+  const r = lastResult;
+  if (!r) return null;
+  const cfg = CHECK_MODES[currentMode];
+  const axes = computeAxes(r, lastBaseline);
+  const b = lastBaseline;
+  const snap = {
+    mean_f0_hz: r.mean_f0_hz, h1_h2_db: r.h1_h2_db, cpp_db: r.cpp_db, hnr_db: r.hnr_db,
+    spectral_tilt: r.spectral_tilt, formant_ratio: r.singers_formant_ratio * 100,
+    active_ratio: r.active_ratio, active_frames: r.active_frames, voiced_frames: r.voiced_frames,
+    insufficient_signal: r.insufficient_signal,
+    tension: isThroatTense(axes), tight: axes.tight, supported: axes.supported,
+    d_tight: axes.detail ? axes.detail.dTight : null,
+    support_margin: axes.detail ? axes.detail.supportMargin : null,
+    limiting: axes.detail ? axes.detail.limiting : null,
+    margins: { ...MARGINS },
+    baseline: b ? { h1_h2_db: b.h1_h2_db, cpp_db: b.cpp_db, hnr_db: b.hnr_db, formant_ratio: b.formant_ratio, f0_hz: b.f0_hz, speech_f0_hz: b.speech ? b.speech.f0_hz : null } : null,
+    mic_settings: micInfo,
+    app_version: "dev-2",
+  };
+  if (cfg.isFormant) {
+    const fr = lastFormantResult;
+    snap.pass = !!(fr && fr.twang.detected);
+    snap.f1 = fr ? fr.f1 : null; snap.f2 = fr ? fr.f2 : null; snap.f3 = fr ? fr.f3 : null; snap.gap = fr ? fr.gap : null;
+    snap.twang_params = { ...TWANG };
+  } else {
+    snap.pass = axes.valid && axes.tight === cfg.targetTight && axes.supported === cfg.targetSupported;
+  }
+  return snap;
+}
+
+// 슬라이더 변경 시: 가장 최근 값으로 배지/그래프/저장 스냅샷을 즉시 다시 판정
+function refreshAfterParamChange() {
+  const cfg = CHECK_MODES[currentMode];
+  if (lastResult) {
+    const axes = computeAxes(lastResult, lastBaseline);
+    renderTensionBadge(isThroatTense(axes));
+    if (cfg && cfg.isFormant) {
+      if (lastFormantResult) {
+        const fr = lastFormantResult;
+        fr.twang.detected = isFinite(fr.formant_ratio_pct) && isFinite(fr.gap) && fr.formant_ratio_pct >= TWANG.minRatioPct && fr.gap < TWANG.maxGapHz;
+        renderTwangPassBadge(fr);
+      }
+    } else renderPassBadge(currentMode, axes);
+    lastSnapshot = buildSnapshot();
+  }
+  renderDevPanel();
+}
+
+function resetDevState() {
+  devHist = []; devTwangHist = []; devTick = 0; devFrozen = false;
+  lastResult = null; lastFormantResult = null; lastBaseline = loadBaseline();
+  const fb = document.getElementById("dev-freeze-btn");
+  fb.classList.remove("on"); fb.textContent = "⏸ 일시정지";
+}
+
+// =========================================================================
+// 실시간 체크 루프
+// =========================================================================
+function liveTick() {
+  if (devFrozen) return; // 일시정지 중에는 화면/저장 스냅샷 모두 그대로 유지
+  if (live.totalWritten < LIVE_WINDOW_SEC * live.sr) return; // 아직 1초 분량이 안 모임
+  const windowSamples = liveExtractWindow(LIVE_WINDOW_SEC);
+  const cfg = CHECK_MODES[currentMode];
+  lastBaseline = loadBaseline();
+
+  const result = analyzeSamples(windowSamples, live.sr);
+  lastResult = result;
+  document.getElementById("live-f0-value").textContent = isNaN(result.mean_f0_hz) ? "—" : Math.round(result.mean_f0_hz);
+  const axes = computeAxes(result, lastBaseline);
+  renderTensionBadge(isThroatTense(axes));
+  devTick++;
+
+  if (cfg.isFormant) {
+    const fr = analyzeFormants(windowSamples, live.sr, result);
+    lastFormantResult = fr;
+    renderTwangPassBadge(fr);
+    renderCardList("formant-cards", toFormantCardData(fr));
+    devTwangHist.push({ tick: devTick, f1: fr.f1, f2: fr.f2, gap: fr.gap, ratioPct: fr.formant_ratio_pct, f0: result.mean_f0_hz });
+    if (devTwangHist.length > DEV_HISTORY) devTwangHist.shift();
+  } else {
+    renderPassBadge(currentMode, axes);
+    renderResonanceBands(result.resonance_bands);
+    renderCardList("cards", toCardData(result));
+    devHist.push({ tick: devTick, h1h2: result.h1_h2_db, cpp: result.cpp_db, hnr: result.hnr_db, ratioPct: result.singers_formant_ratio * 100, f0: result.mean_f0_hz });
+    if (devHist.length > DEV_HISTORY) devHist.shift();
+  }
+
+  lastSnapshot = buildSnapshot();
+  if (selectedUserLabel) document.getElementById("save-log-btn").disabled = false;
+  renderDevPanel();
+}
+
 async function startLiveListening() {
   document.getElementById("live-error").style.display = "none";
   try {
-    live.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    live.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    live.sr = live.audioCtx.sampleRate;
-    live.circularBuf = new Float32Array(Math.ceil(LIVE_BUFFER_SEC * live.sr));
-    live.writeIdx = 0;
-    live.totalWritten = 0;
-
-    live.sourceNode = live.audioCtx.createMediaStreamSource(live.stream);
-    live.processorNode = live.audioCtx.createScriptProcessor(LIVE_PROCESSOR_BUFSIZE, 1, 1);
-    live.silentGain = live.audioCtx.createGain();
-    live.silentGain.gain.value = 0; // 마이크 소리가 스피커로 되먹임되지 않도록 무음 처리
-
-    live.processorNode.onaudioprocess = (e) => {
-      liveWriteChunk(e.inputBuffer.getChannelData(0));
-    };
-    live.sourceNode.connect(live.processorNode);
-    live.processorNode.connect(live.silentGain);
-    live.silentGain.connect(live.audioCtx.destination);
-
+    live.mic = await openMic(liveWriteChunk, (sr) => {
+      live.sr = sr;
+      live.circularBuf = new Float32Array(Math.ceil(LIVE_BUFFER_SEC * sr));
+      live.writeIdx = 0;
+      live.totalWritten = 0;
+    });
+    const s = live.mic.settings || {};
+    micInfo = { sampleRate: live.mic.sr, echoCancellation: s.echoCancellation, noiseSuppression: s.noiseSuppression, autoGainControl: s.autoGainControl };
     live.active = true;
 
     live.levelTimer = setInterval(() => {
@@ -1208,64 +1924,8 @@ async function startLiveListening() {
       const db = live.currentLevel > 1e-5 ? 20 * Math.log10(live.currentLevel) : -Infinity;
       document.getElementById("live-level-db").textContent = isFinite(db) ? Math.round(db) + " dB" : "-∞ dB";
     }, 100);
-
-    const baseline = loadBaseline();
-    live.analysisTimer = setInterval(() => {
-      const minSamples = LIVE_WINDOW_SEC * live.sr;
-      if (live.totalWritten < minSamples) return; // 아직 1초 분량이 안 모임
-      const windowSamples = liveExtractWindow(LIVE_WINDOW_SEC);
-      const cfg = CHECK_MODES[currentMode];
-
-      if (cfg.isFormant) {
-        // 트왕 체크: 포먼트 기반 분석 (F0 표시용으로 analyzeSamples도 같이 실행)
-        const result = analyzeSamples(windowSamples, live.sr);
-        document.getElementById("live-f0-value").textContent =
-          isNaN(result.mean_f0_hz) ? "—" : Math.round(result.mean_f0_hz);
-        const axes = computeAxes(result, baseline);
-        const tense = isThroatTense(axes);
-        renderTensionBadge(tense);
-
-        const formantResult = analyzeFormants(windowSamples, live.sr);
-        renderTwangPassBadge(formantResult);
-        renderCardList("formant-cards", toFormantCardData(formantResult));
-
-        lastSnapshot = {
-          pass: !!formantResult.twang.detected,
-          tension: tense,
-          mean_f0_hz: result.mean_f0_hz,
-          f1: formantResult.f1, f2: formantResult.f2, f3: formantResult.f3,
-          h1_h2_db: result.h1_h2_db, cpp_db: result.cpp_db, hnr_db: result.hnr_db,
-          spectral_tilt: result.spectral_tilt,
-          formant_ratio: result.singers_formant_ratio * 100,
-        };
-        if (selectedUserLabel) document.getElementById("save-log-btn").disabled = false;
-      } else {
-        // 일반 체크 (흉성/두성/가성): 기존 조임·지지력 축 기반 분석
-        const result = analyzeSamples(windowSamples, live.sr);
-        document.getElementById("live-f0-value").textContent =
-          isNaN(result.mean_f0_hz) ? "—" : Math.round(result.mean_f0_hz);
-
-        const axes = computeAxes(result, baseline);
-        const cfgM = CHECK_MODES[currentMode];
-        const pass = axes.valid && axes.tight === cfgM.targetTight && axes.supported === cfgM.targetSupported;
-        const tense = isThroatTense(axes);
-        renderPassBadge(currentMode, axes);
-        renderTensionBadge(tense);
-        renderResonanceBands(result.resonance_bands);
-        renderCardList("cards", toCardData(result));
-
-        lastSnapshot = {
-          pass, tension: tense,
-          tight: axes.tight, supported: axes.supported,
-          mean_f0_hz: result.mean_f0_hz,
-          h1_h2_db: result.h1_h2_db, cpp_db: result.cpp_db, hnr_db: result.hnr_db,
-          spectral_tilt: result.spectral_tilt,
-          formant_ratio: result.singers_formant_ratio * 100,
-        };
-        if (selectedUserLabel) document.getElementById("save-log-btn").disabled = false;
-      }
-    }, LIVE_ANALYSIS_MS);
-
+    live.analysisTimer = setInterval(liveTick, LIVE_ANALYSIS_MS);
+    renderDevPanel();
   } catch (err) {
     console.error(err);
     const el = document.getElementById("live-error");
@@ -1281,16 +1941,29 @@ function stopLiveListening() {
   if (live.levelTimer) clearInterval(live.levelTimer);
   live.analysisTimer = null;
   live.levelTimer = null;
-
-  if (live.processorNode) { live.processorNode.disconnect(); live.processorNode.onaudioprocess = null; }
-  if (live.sourceNode) live.sourceNode.disconnect();
-  if (live.silentGain) live.silentGain.disconnect();
-  if (live.stream) live.stream.getTracks().forEach(t => t.stop());
-  if (live.audioCtx) live.audioCtx.close();
+  if (live.mic) { live.mic.stop(); live.mic = null; }
+  live.circularBuf = null;
   resetCheckScreen();
+  resetDevState();
+  renderDevPanel();
 }
 
+// ---------- 초기화 / 이벤트 연결 ----------
+buildSliders("margin-sliders", MARGIN_DEFS, () => MARGINS, DEFAULT_MARGINS, saveMargins);
+buildSliders("twang-sliders", TWANG_DEFS, () => TWANG, DEFAULT_TWANG, saveTwangParams);
+
+document.getElementById("dev-freeze-btn").addEventListener("click", () => {
+  devFrozen = !devFrozen;
+  const fb = document.getElementById("dev-freeze-btn");
+  fb.classList.toggle("on", devFrozen);
+  fb.textContent = devFrozen ? "▶ 다시 시작" : "⏸ 일시정지";
+});
+let _resizeTimer = null;
+window.addEventListener("resize", () => { clearTimeout(_resizeTimer); _resizeTimer = setTimeout(() => { if (screens.check.classList.contains("active")) renderDevPanel(); }, 150); });
+
 document.getElementById("calibrate-btn").addEventListener("click", startCalibration);
+document.getElementById("calibrate2-btn").addEventListener("click", startCalibStep2);
+document.getElementById("calib-skip-btn").addEventListener("click", skipCalibStep2);
 
 renderUserLabelOptions();
 document.getElementById("save-log-btn").addEventListener("click", handleSaveLog);
