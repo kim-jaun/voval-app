@@ -337,7 +337,7 @@
       <div id="dev-general">
         <p class="dev-sub">① 조임 × 지지 평면 (점이 영역에 들어가면 판정이 바뀜)</p>
         <canvas id="scatter-canvas" class="dev-canvas"></canvas>
-        <p class="dev-note">가로: 성대 조임(기준 대비 H1-H2 증가량, 왼쪽일수록 조임) · 세로: 지지 여유(CPP·HNR·울림감 중 가장 부족한 지표 기준, 0 위=지지됨) · 아래쪽 붉은 영역 = 목 긴장 경고 구간</p>
+        <p class="dev-note">가로: 성대 조임(기준 대비 H1-H2 증가량, 왼쪽일수록 조임) · 세로: 지지 여유(CPP·HNR·울림감 중 가장 부족한 지표 기준, 0 위=지지됨) · 왼쪽 아래 붉은 영역(조임+지지부족) = 목 긴장 경고 구간</p>
         <p class="dev-sub">② 지표별 추이 (최근 약 24초) — 점선: 기준값 / 주황: 판정 한계 / 세로선: 판정 전환</p>
         <canvas id="strips-canvas" class="dev-canvas"></canvas>
         <p class="dev-sub">③ 판정 여유값 조절 (바로 판정에 반영됨)</p>
@@ -773,9 +773,16 @@ function computeAxes(result, baselineStats, margins) {
   };
 }
 
-// 목 긴장 경고: 조임/이완과 무관하게 "지지력" 축 하나로만 독립 판단.
-// 모든 체크 모드(흉성/두성/가성/트왕)에서 공통으로 쓰는 경고 신호.
+// 목 긴장 경고: "성대는 조여 있는데(조임) 지지가 부족"할 때만 켜짐.
+// 모든 체크 모드(흉성/두성/가성/트왕)에서 같은 정의를 쓰는 공통 경고 신호.
+// (예전 정의 "지지부족이면 무조건 켜짐"은 가성처럼 느슨하고 바람 섞인 소리까지 경고로 잡아서,
+//  가성 모드에서 '통과'와 '경고'가 동시에 켜지는 문제가 있었음)
 function isThroatTense(axes) {
+  if (!axes.valid) return false;
+  return axes.tight && !axes.supported;
+}
+// 이전 정의(지지부족만). 화면 판정에는 쓰지 않고, 저장 기록에 같이 남겨 어느 정의가 더 잘 맞는지 비교하는 용도.
+function isThroatTenseSupportOnly(axes) {
   if (!axes.valid) return false;
   return !axes.supported;
 }
@@ -1508,13 +1515,13 @@ function drawScatter() {
     ctx.textAlign = "center";
     ctx.fillText(q.label + (isTarget ? " ★목표" : ""), (x0 + x1) / 2, (y0 + y1) / 2);
   }
-  // 목 긴장 경고 구간(지지 여유 < 0) : 아래쪽 붉은 띠
-  ctx.fillStyle = "rgba(255,90,90,0.07)";
-  ctx.fillRect(padL, Y(0), pw, Y(SC.yMin) - Y(0));
-  ctx.fillStyle = "rgba(255,138,128,0.85)";
+  // 목 긴장 경고 구간 = 조임(왼쪽) + 지지 부족(아래쪽) 사분면
+  ctx.fillStyle = "rgba(255,90,90,0.16)";
+  ctx.fillRect(padL, Y(0), X(xT) - padL, Y(SC.yMin) - Y(0));
+  ctx.fillStyle = "rgba(255,138,128,0.95)";
   ctx.font = "10px -apple-system, sans-serif";
   ctx.textAlign = "left";
-  ctx.fillText("▼ 목 긴장 경고 구간", padL + 4, Y(SC.yMin) - 4);
+  ctx.fillText("⚠ 목 긴장 경고 구간", padL + 4, Y(SC.yMin) - 4);
 
   // 한계선
   ctx.setLineDash([4, 3]);
@@ -1771,7 +1778,7 @@ function renderDevTable() {
       <tr><td>울림감 (%)</td><td>${fmtN(ratioPct, 2)}</td><td>${fmtN(b.formant_ratio, 2)}</td><td>Δ ≥ ${fmtN(MARGINS.formantDb)}dB</td><td>${badgeCell(d.formantMargin >= 0)}</td></tr>
     </table>
     <p class="dev-note">지지 = CPP·HNR·울림감 모두 충족 → <b>${ax.supported ? "지지됨" : "지지 부족"}</b> (가장 부족한 지표: ${({ cpp: "CPP", hnr: "HNR", formant: "울림감" })[d.limiting]}, 여유 ${fmtN(d.supportMargin, 2)}dB)<br>
-    조임 Δ ${fmtN(d.dTight, 2)}dB (한계 +${fmtN(d.tightLimit, 1)}) → <b>${ax.tight ? "조임" : "이완"}</b> · 목표(${cfg.title}) 통과: <b>${pass ? "예" : "아니오"}</b> · 목 긴장: <b>${isThroatTense(ax) ? "감지" : "없음"}</b><br>
+    조임 Δ ${fmtN(d.dTight, 2)}dB (한계 +${fmtN(d.tightLimit, 1)}) → <b>${ax.tight ? "조임" : "이완"}</b> · 목표(${cfg.title}) 통과: <b>${pass ? "예" : "아니오"}</b> · 목 긴장: <b>${isThroatTense(ax) ? "감지" : "없음"}</b> <span style="color:#6E6E76">(조임+지지부족 기준 · 참고: 지지부족만 기준이면 ${isThroatTenseSupportOnly(ax) ? "감지" : "없음"})</span><br>
     ${sig} · 두께감(틸트) ${fmtN(r.spectral_tilt)}</p>`;
 }
 function renderDevTwangTable() {
@@ -1823,14 +1830,17 @@ function buildSnapshot() {
     spectral_tilt: r.spectral_tilt, formant_ratio: r.singers_formant_ratio * 100,
     active_ratio: r.active_ratio, active_frames: r.active_frames, voiced_frames: r.voiced_frames,
     insufficient_signal: r.insufficient_signal,
-    tension: isThroatTense(axes), tight: axes.tight, supported: axes.supported,
+    tension: isThroatTense(axes),                         // 화면 판정에 쓰는 정의: 조임 + 지지부족
+    tension_support_only: isThroatTenseSupportOnly(axes), // 이전 정의: 지지부족만 (비교용)
+    tension_rule: "tight_and_unsupported",
+    tight: axes.tight, supported: axes.supported,
     d_tight: axes.detail ? axes.detail.dTight : null,
     support_margin: axes.detail ? axes.detail.supportMargin : null,
     limiting: axes.detail ? axes.detail.limiting : null,
     margins: { ...MARGINS },
     baseline: b ? { h1_h2_db: b.h1_h2_db, cpp_db: b.cpp_db, hnr_db: b.hnr_db, formant_ratio: b.formant_ratio, f0_hz: b.f0_hz, speech_f0_hz: b.speech ? b.speech.f0_hz : null } : null,
     mic_settings: micInfo,
-    app_version: "dev-2",
+    app_version: "dev-3",
   };
   if (cfg.isFormant) {
     const fr = lastFormantResult;
